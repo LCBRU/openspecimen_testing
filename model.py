@@ -3,10 +3,9 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from pathlib import Path
+import os
 
 Base = declarative_base()
-
-DATABASE_PATH = r'sqlite:////home/richard/OpenSpecimenTest/db.sqlite'
 
 class CollectionProtocol(Base):
     __tablename__ = 'collection_protocol'
@@ -42,9 +41,9 @@ class Sample(Base):
 
 def init_database():
 
-    existing = Path(DATABASE_PATH).exists()
+    existing = Path(os.environ["DATABASE_PATH"]).exists()
 
-    engine = create_engine(DATABASE_PATH)
+    engine = create_engine(os.environ["DATABASE_PATH"])
 
     if not existing:
         Base.metadata.create_all(engine)
