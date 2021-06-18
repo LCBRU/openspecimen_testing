@@ -107,10 +107,16 @@ class SampleSpider:
 
         if self.session.query(Participant).filter_by(collection_protocol_id=cp.id).count() == 0:
             self.download_export(cp)
-        
+        processed = 0
+
         for p in self.session.query(Participant).filter_by(collection_protocol_id=cp.id, completed=False).order_by(Participant.id).all():
             self.get(cp.href)
             self.process_participant(p)
+
+            processed += 1
+
+            if processed > 20:
+                quit()
 
     def download_export(self, cp):
         self.get(cp.href)
