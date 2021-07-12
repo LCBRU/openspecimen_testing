@@ -25,6 +25,7 @@ class Participant(Base):
     ppid = Column(String(100))
     has_error = Column(Boolean(), default=False)
     completed = Column(Boolean(), default=False)
+    has_error_checked = Column(Boolean(), default=False)
 
 
 class Sample(Base):
