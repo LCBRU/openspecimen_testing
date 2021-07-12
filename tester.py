@@ -11,6 +11,9 @@ from pathlib import Path
 
 
 class TesterBase:
+    SAMPLING_TYPE_ALL = 'all'
+    SAMPLING_TYPE_FIBONACCI = 'fibonacci'
+
     def __init__(
         self,
         output_directory,
@@ -24,11 +27,13 @@ class TesterBase:
         version=None,
         username='',
         password='',
+        sampling_type='fibonacci',
     ):
         self.implicit_wait_time = implicit_wait_time
         self.click_wait_time = click_wait_time
         self.download_wait_time = download_wait_time
         self.page_wait_time = page_wait_time
+        self.sampling_type = sampling_type
 
         self._username = username
         self._password = password
@@ -124,11 +129,12 @@ class TesterBase:
         return [o.get_attribute('value') for o in select.find_elements_by_tag_name('option')]
 
     def is_sampling_pick(self, n):
-        logging.info(f'{n=}')
-
         is_perfect_square = lambda x: int(math.sqrt(x))**2 == x
 
-        return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)
+        if self.sampling_type == TesterBase.SAMPLING_TYPE_ALL:
+            return True
+        else:
+            return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)
 
     def run(self):
         pass

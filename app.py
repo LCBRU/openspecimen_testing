@@ -1,6 +1,6 @@
 import logging
 import os
-from distribution_protocol_tester import DistributionProtocolTester
+from forms_tester import FormTester
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
 
-s = DistributionProtocolTester(
+s = FormTester(
     download_directory=os.environ["DOWNLOAD_DIRECTORY"],
     output_directory=os.environ["OUTPUT_DIRECTORY"],
     base_url=os.environ["OS_URL_BASE"],
@@ -23,6 +23,7 @@ s = DistributionProtocolTester(
     username=os.environ["USERNAME"],
     password=os.environ["PASSWORD"],
     version='5.0',
+    sampling_type=os.environ["SAMPLING_TYPE"],
 )
 
 started = datetime.now()
