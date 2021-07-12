@@ -1,16 +1,17 @@
 import logging
 import os
-from user_tester import UserTester
+from distribution_protocol_tester import DistributionProtocolTester
 from dotenv import load_dotenv
 from datetime import datetime
 
 
 load_dotenv()
 
+logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
 
-s = UserTester(
+s = DistributionProtocolTester(
     download_directory=os.environ["DOWNLOAD_DIRECTORY"],
     output_directory=os.environ["OUTPUT_DIRECTORY"],
     base_url=os.environ["OS_URL_BASE"],

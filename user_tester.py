@@ -1,3 +1,4 @@
+import logging
 import jsonlines
 from selenium.webdriver.common.by import By
 from os_tester import OsTester
@@ -11,6 +12,8 @@ class UserTester(OsTester):
         self.get('#/users')
 
     def get_user_export(self):
+        logging.info('Exporting Users')
+
         self.goto_users_page()
         self.save_export(self.USER_EXPORT_FILENAME)
 
@@ -24,11 +27,19 @@ class UserTester(OsTester):
         self.click_element(f'//span[normalize-space(text()) = normalize-space("{fullname}")]', By.XPATH)
 
     def visit_users(self):
+        logging.info('Visiting Users')
+
         with jsonlines.open(self._output_directory / self.USER_DETAILS_FILENAME, mode='w') as writer:
             with jsonlines.open(self._output_directory / self.USER_EXPORT_FILENAME) as reader:
-                for u in reader:
-                    dets = self.visit_user(u)
-                    writer.write(dets)
+                for i, u in enumerate(reader):
+                    if self.is_sampling_pick(i):
+                        logging.info(f'Processing user: {u["Login Name"]}')
+
+                        dets = self.visit_user(u)
+                        writer.write(dets)
+                    else:
+                        logging.info(f'Skipping user: {u["Login Name"]}')
+
 
     def visit_user(self, user):
         details = self.get_user_details(user)

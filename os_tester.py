@@ -36,4 +36,50 @@ class OsTester(TesterBase):
         
         self.clear_download_directory()
 
+    def get_overview_details(self):
+        details = {}
+
+        for kvpair in self.driver.find_elements_by_css_selector('ul.os-key-values li'):
+            title = kvpair.find_element_by_tag_name('strong')
+            value = kvpair.find_element_by_tag_name('span')
+
+            details[self.get_innerHtml(title)] = self.get_innerHtml(value)
+
+        return details
+
+    def get_div_table_details(self):
+        result = []
+
+        headers = [self.get_innerHtml(h) for h in self.get_elements('div.os-table-head div.col span', By.CSS_SELECTOR)]
+
+        for row in self.get_elements('div[ng-repeat]', By.CSS_SELECTOR):
+            details = {}
+
+            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'div')):
+                if i == 0:
+                    link = cell.find_element(By.CSS_SELECTOR, 'a')
+
+                    details['href'] = self.get_href(link)
+                    details[headers[i]] = self.get_innerHtml(link)
+                else:
+                    details[headers[i]] = self.get_innerHtml(cell)
+
+            result.append(details)
+
+        return result
+
+    def get_table_details(self):
+        result = []
+
+        headers = [self.get_innerHtml(h) for h in self.get_elements('table.os-table thead th span', By.CSS_SELECTOR)]
+
+        for row in self.get_elements('table.os-table tbody tr', By.CSS_SELECTOR):
+            details = {}
+
+            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'td')):
+                details[headers[i]] = self.get_innerHtml(cell)
+
+            result.append(details)
+
+        return result
 

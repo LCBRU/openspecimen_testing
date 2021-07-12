@@ -1,4 +1,6 @@
 import zipfile
+import math
+import logging
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -120,6 +122,13 @@ class TesterBase:
         select = self.driver.find_element_by_id(id)
 
         return [o.get_attribute('value') for o in select.find_elements_by_tag_name('option')]
+
+    def is_sampling_pick(self, n):
+        logging.info(f'{n=}')
+
+        is_perfect_square = lambda x: int(math.sqrt(x))**2 == x
+
+        return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)
 
     def run(self):
         pass
