@@ -71,7 +71,7 @@ class OsTester(TesterBase):
     def get_table_details(self):
         result = []
 
-        headers = [self.get_innerHtml(h) for h in self.get_elements('table.os-table thead th span', By.CSS_SELECTOR)]
+        headers = [self.get_innerHtml(h) for h in self.get_elements('table.os-table thead .col span', By.CSS_SELECTOR)]
 
         for row in self.get_elements('table.os-table tbody tr', By.CSS_SELECTOR):
             details = {}

@@ -59,11 +59,7 @@ class FormTester(OsTester):
         for row in self.get_elements('div.form-group', By.CSS_SELECTOR):
             details = {}
 
-            l = row.find_element(By.CSS_SELECTOR, 'label')
-            c = row.find_element(By.CSS_SELECTOR, 'div')
-
-            details['label'] = self.get_innerHtml(l)
-            details['control'] = self.get_innerHtml(c)
+            details['control'] = self.get_innerHtml(row)
 
             result.append(details)
 

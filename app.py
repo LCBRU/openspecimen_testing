@@ -1,6 +1,6 @@
 import logging
 import os
-from forms_tester import FormTester
+from container_tester import ContainerTester
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
 
-s = FormTester(
+s = ContainerTester(
     download_directory=os.environ["DOWNLOAD_DIRECTORY"],
     output_directory=os.environ["OUTPUT_DIRECTORY"],
     base_url=os.environ["OS_URL_BASE"],
