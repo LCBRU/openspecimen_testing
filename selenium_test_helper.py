@@ -1,6 +1,5 @@
 import zipfile
 import math
-import logging
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -10,7 +9,7 @@ from urllib.parse import urljoin
 from pathlib import Path
 
 
-class TesterBase:
+class SeleniumTestHelper:
     SAMPLING_TYPE_ALL = 'all'
     SAMPLING_TYPE_FIBONACCI = 'fibonacci'
 
@@ -112,7 +111,15 @@ class TesterBase:
             sleep(self.click_wait_time)
     
     def get_text(self, element):
-        return (element.get_attribute("text") or '').strip()
+        result = (element.text or '').strip()
+
+        if len(result) == 0:
+            result = (element.get_attribute("text") or '').strip()
+
+            if len(result) == 0:
+                result = self.get_innerHtml(element)
+        
+        return result
     
     def get_href(self, element):
         return (element.get_attribute("href") or '').strip()
@@ -131,7 +138,7 @@ class TesterBase:
     def is_sampling_pick(self, n):
         is_perfect_square = lambda x: int(math.sqrt(x))**2 == x
 
-        if self.sampling_type == TesterBase.SAMPLING_TYPE_ALL:
+        if self.sampling_type == SeleniumTestHelper.SAMPLING_TYPE_ALL:
             return True
         else:
             return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)

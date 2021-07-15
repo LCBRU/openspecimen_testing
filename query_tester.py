@@ -1,52 +1,26 @@
-import logging
-from re import L
-from time import sleep
-import jsonlines
+from open_specimen_tester import OpenSpecimenTester
 from selenium.webdriver.common.by import By
-from os_tester import OsTester
+from time import sleep
 
+class QueryTester(OpenSpecimenTester):
+    def object_name(self):
+        return 'query'
 
-class QueryTester(OsTester):
-    EXPORT_FILENAME = 'query_export.jsonl'
-    DETAILS_FILENAME = 'query_details.jsonl'
+    def function_page_url(self):
+        return 'queries/list'
 
-    def goto_function_page(self):
-        self.get('#/queries/list')
+    def export_link_css_selector(self):
+        return 'a[ui-sref="query-results({queryId: query.id})"]'
 
-    def goto_query(self, dp):
-        self.goto_function_page()
-        self.get(dp['href'])
-        sleep(15)
-        self.get_element('span[translate="common.buttons.actions"]', By.CSS_SELECTOR)
+    def item_page_loaded_css_selector(self):
+        return 'span[translate="common.buttons.actions"]'
 
-    def get_export(self):
-        logging.info('Exporting')
-
-        self.goto_function_page()
-
-        with jsonlines.open(self._output_directory / self.EXPORT_FILENAME, mode='w') as writer:
-            for x in self.get_elements('a[ui-sref="query-results({queryId: query.id})"]', By.CSS_SELECTOR):
-                details = {
-                    'name': self.get_text(x),
-                    'href': self.get_href(x),
-                }
-                writer.write(details)
-
-    def visit_queries(self):
-        logging.info('Visiting')
-
-        with jsonlines.open(self._output_directory / self.DETAILS_FILENAME, mode='w') as writer:
-            with jsonlines.open(self._output_directory / self.EXPORT_FILENAME) as reader:
-                for i, f in enumerate(reader):
-                    logging.info(f'Processing Query: {f["name"]}')
-
-                    dets = self.visit_query(f)
-                    writer.write(dets)
-
-    def visit_query(self, x):
+    def visit_item(self, x):
         details = {}
 
-        self.goto_query(x)
+        self.goto_item_page(x)
+
+        sleep(15)
 
         details['rows'] = self.get_query_result_details()
 
@@ -55,24 +29,20 @@ class QueryTester(OsTester):
     def get_query_result_details(self):
         result = []
 
-        headers = [self.get_innerHtml(h) for h in self.get_elements('div.ngHeaderContainer div.ngHeaderCell tooltip-append-to-bod', By.CSS_SELECTOR)]
+        headers = [self.helper.get_text(h) for h in self.helper.get_elements('div.ngHeaderContainer div.ngHeaderCell tooltip-append-to-bod', By.CSS_SELECTOR)]
 
-        for row in self.get_elements('div.ngRow', By.CSS_SELECTOR):
+        for row in self.helper.get_elements('div.ngRow', By.CSS_SELECTOR):
             details = {}
 
             for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'div.ngCell a, div.ngCell span')):
                 if cell.tag_name == 'a':
                     details[headers[i]] = {
-                        'href': self.get_href(cell),
-                        'value': self.get_innerHtml(cell),
+                        'href': self.helper.get_href(cell),
+                        'value': self.helper.get_text(cell),
                     }
                 else:
-                    details[headers[i]] = self.get_innerHtml(cell)
+                    details[headers[i]] = self.helper.get_text(cell)
 
             result.append(details)
 
         return result
-
-    def run(self):
-        self.get_export()
-        self.visit_queries()

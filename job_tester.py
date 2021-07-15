@@ -1,26 +1,18 @@
-import logging
-import jsonlines
-from selenium.webdriver.common.by import By
-from os_tester import OsTester
+from open_specimen_tester import OpenSpecimenTester
 
 
-class JobTester(OsTester):
-    EXPORT_FILENAME = 'job_export.jsonl'
+class JobTester(OpenSpecimenTester):
+    def object_name(self):
+        return 'job'
 
-    def goto_function_page(self):
-        self.get('#/jobs')
+    def function_page_url(self):
+        return 'jobs'
 
-    def get_export(self):
-        logging.info('Exporting Jobs')
+    def export_link_css_selector(self):
+        return 'a[ng-click="executeJob(job)"]'
 
-        self.goto_function_page()
+    def item_page_loaded_css_selector(self):
+        return ''
 
-        with jsonlines.open(self._output_directory / self.EXPORT_FILENAME, mode='w') as writer:
-            for x in self.get_elements('a[ng-click="executeJob(job)"] span', By.CSS_SELECTOR):
-                details = {
-                    'name': self.get_innerHtml(x),
-                }
-                writer.write(details)
-
-    def run(self):
-        self.get_export()
+    def visit_item(self, o):
+        return []
