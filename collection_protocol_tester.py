@@ -36,7 +36,7 @@ class CollectionProtocolTester(OpenSpecimenTester):
         # Participants
         self.goto_item_page(x)
 
-        sleep(5)
+        sleep(2)
 
         details['participants'] = self.helper.get_table_details()
 
