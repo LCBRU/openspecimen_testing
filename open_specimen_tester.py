@@ -175,7 +175,7 @@ class OpenSpecimenTester():
                 writer.write(details)
 
     def visit_items(self):
-        logging.info('Visiting Items')
+        logging.info(f'Visiting All {self.object_name()}s')
 
         with jsonlines.open(self.helper._output_directory / self._details_filename(), mode='w') as writer:
             with jsonlines.open(self.helper._output_directory / self._export_filename()) as reader:

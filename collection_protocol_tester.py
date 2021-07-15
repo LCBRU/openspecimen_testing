@@ -45,6 +45,7 @@ class CollectionProtocolTester(OpenSpecimenTester):
 
         return details
 
+
 class CollectionProtocolParticipantTester(OpenSpecimenTester):
     def __init__(self, helper, collection_protocol_name, cp_url):
         super().__init__(helper)
@@ -105,7 +106,7 @@ class CollectionProtocolParticipantSampleTester(OpenSpecimenTester):
         return 'a[ui-sref^="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId"]'
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="specimens.buttons.assign_to"]'
+        return 'span[translate="common.buttons.edit"]'
 
     def visit_item(self, x):
         details = {}
