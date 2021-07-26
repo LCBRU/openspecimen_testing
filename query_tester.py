@@ -18,9 +18,11 @@ class QueryTester(OpenSpecimenTester):
     def visit_item(self, x):
         details = {}
 
+        details['name'] = x['name']
+
         self.goto_item_page(x)
 
-        sleep(15)
+        sleep(30)
 
         details['rows'] = self.get_query_result_details()
 

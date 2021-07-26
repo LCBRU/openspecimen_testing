@@ -18,12 +18,12 @@ class SeleniumTestHelper:
         output_directory,
         download_directory,
         base_url,
+        version,
         headless=True,
         implicit_wait_time=1,
         click_wait_time=0.2,
         download_wait_time=5,
         page_wait_time=1,
-        version=None,
         username='',
         password='',
         sampling_type='fibonacci',
@@ -55,12 +55,9 @@ class SeleniumTestHelper:
         self._download_directory.mkdir(parents=True, exist_ok=True)
         self.clear_download_directory()
 
-        if version:
-            self._output_directory = Path(output_directory) / version
-        else:
-            self._output_directory = Path(output_directory)
+        self.output_directory = Path(output_directory) / version
 
-        self._output_directory.mkdir(parents=True, exist_ok=True)
+        self.output_directory.mkdir(parents=True, exist_ok=True)
 
     def close(self):
         self.driver.close()
@@ -137,6 +134,12 @@ class SeleniumTestHelper:
 
     def is_sampling_pick(self, n):
         is_perfect_square = lambda x: int(math.sqrt(x))**2 == x
+
+        if self.sampling_type.isnumeric():
+            if (n % 100) < int(self.sampling_type.isnumeric()):
+                return True
+            else:
+                return False
 
         if self.sampling_type == SeleniumTestHelper.SAMPLING_TYPE_ALL:
             return True

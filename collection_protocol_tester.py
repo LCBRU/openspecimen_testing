@@ -36,8 +36,6 @@ class CollectionProtocolTester(OpenSpecimenTester):
         # Participants
         self.goto_item_page(x)
 
-        sleep(2)
-
         details['participants'] = self.helper.get_table_details()
 
         cppt = CollectionProtocolParticipantTester(self.helper, details['overview']['Title'], overview_url.replace('overview', 'participants').split('#/')[1])
@@ -69,8 +67,6 @@ class CollectionProtocolParticipantTester(OpenSpecimenTester):
         details = {}
 
         self.goto_item_page(x)
-
-        sleep(2)
 
         details['overview'] = self.helper.get_overview_details()
 
@@ -112,8 +108,6 @@ class CollectionProtocolParticipantSampleTester(OpenSpecimenTester):
         details = {}
 
         self.goto_item_page(x)
-
-        sleep(2)
 
         details['overview'] = self.helper.get_overview_details()
 

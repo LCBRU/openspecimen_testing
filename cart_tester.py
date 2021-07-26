@@ -20,8 +20,6 @@ class CartTester(OpenSpecimenTester):
 
         self.goto_item_page(x)
 
-        sleep(2)
-
         details['samples'] = self.helper.get_table_details()
 
         return details

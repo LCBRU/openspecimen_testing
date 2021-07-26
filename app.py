@@ -1,5 +1,7 @@
 import logging
 import os
+import json
+from pathlib import Path
 from open_specimen_tester import OpenSpecimenSeleniumTestHelper
 from site_tester import SiteTester
 from user_tester import UserTester
@@ -34,7 +36,7 @@ h = OpenSpecimenSeleniumTestHelper(
     page_wait_time=float(os.environ["PAGE_WAIT_TIME"]),
     username=os.environ["USERNAME"],
     password=os.environ["PASSWORD"],
-    version='5.0',
+    version=os.environ["VERSION"],
     sampling_type=os.environ["SAMPLING_TYPE"],
 )
 
@@ -57,8 +59,30 @@ testers = [
     CartTester(h),
 ]
 
+PROGRESS_FILENAME = h.output_directory / 'progress.json'
+
+if Path(PROGRESS_FILENAME).is_file():
+    with open(PROGRESS_FILENAME) as j:
+        progress = json.load(j)
+else:
+    progress = []
+
 for t in testers:
-    t.run()
+    tester_name = type(t).__name__
+
+    if tester_name not in progress:
+        print(f'Processing {tester_name}')
+
+        t.run()
+
+        print(f'Completed {tester_name}')
+
+        progress.append(tester_name)
+
+        with open(PROGRESS_FILENAME, 'w') as j:
+            json.dump(progress, j)
+    else:
+        print(f'Skipping {tester_name}')
 
 h.close()
 

@@ -18,6 +18,8 @@ class RoleTester(OpenSpecimenTester):
     def visit_item(self, o):
         details = {}
 
+        details['name'] = o['name']
+
         self.goto_item_page(o)
 
         details['overview'] = self.get_permissions()
@@ -36,4 +38,4 @@ class RoleTester(OpenSpecimenTester):
 
             result.append(details)
 
-        return result
+        return sorted(result, key=lambda d: d['resource'])

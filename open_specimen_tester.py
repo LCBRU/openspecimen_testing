@@ -30,7 +30,7 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
         with open(self._download_directory / 'output.csv') as csvfile:
             reader = csv.DictReader(csvfile)
 
-            with jsonlines.open(self._output_directory / filename, mode='w') as writer:
+            with jsonlines.open(self.output_directory / filename, mode='w') as writer:
                 for row in reader:
                     writer.write(row)
         
@@ -139,29 +139,33 @@ class OpenSpecimenTester():
 
     def goto_function_page(self):
         self.helper.get(f'#/{self.function_page_url()}')
-        sleep(2)
+        sleep(self.helper.page_wait_time)
 
     def goto_item_page(self, o):
         self.goto_function_page()
         self.helper.get(o['href'])
         self.helper.get_element(self.item_page_loaded_css_selector(), By.CSS_SELECTOR)
+        sleep(self.helper.page_wait_time)
 
     def goto_item_sub_page(self, o, page_name, loaded_css_selector, original='overview'):
         self.goto_function_page()
         self.helper.get(o['href'].replace(original, page_name))
         self.helper.get_element(loaded_css_selector, By.CSS_SELECTOR)
+        sleep(self.helper.page_wait_time)
         
     def goto_item_custom_page(self, url, loaded_css_selector):
         self.goto_function_page()
         self.helper.get(url)
         self.helper.get_element(loaded_css_selector, By.CSS_SELECTOR)
+        sleep(self.helper.page_wait_time)
         
     def get_export(self):
         logging.info('Exporting')
 
         self.goto_function_page()
+        sleep(self.helper.page_wait_time)
 
-        with jsonlines.open(self.helper._output_directory / self._export_filename(), mode='w') as writer:
+        with jsonlines.open(self.helper.output_directory / self._export_filename(), mode='w') as writer:
             for x in self.helper.get_elements(self.export_link_css_selector(), By.CSS_SELECTOR):
                 href = self.helper.get_href(x)
 
@@ -177,8 +181,8 @@ class OpenSpecimenTester():
     def visit_items(self):
         logging.info(f'Visiting All {self.object_name()}s')
 
-        with jsonlines.open(self.helper._output_directory / self._details_filename(), mode='w') as writer:
-            with jsonlines.open(self.helper._output_directory / self._export_filename()) as reader:
+        with jsonlines.open(self.helper.output_directory / self._details_filename(), mode='w') as writer:
+            with jsonlines.open(self.helper.output_directory / self._export_filename()) as reader:
                 for i, o in enumerate(reader):
                     if self.helper.is_sampling_pick(i):
                         logging.info(f'Processing Item: {o["name"]}')
@@ -198,7 +202,7 @@ class OpenSpecimenTester():
         return details
 
     def run(self):
-        sleep(5)
+        sleep(self.helper.page_wait_time)
         self.get_export()
         self.visit_items()
 

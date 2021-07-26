@@ -19,7 +19,6 @@ class OrderTester(OpenSpecimenTester):
         details = super().visit_item(o)
 
         self.goto_item_sub_page(o, page_name='items', loaded_css_selector='span[translate="orders.spec.label"]')
-        sleep(2)
 
         details['items'] = self.helper.get_table_details()
 

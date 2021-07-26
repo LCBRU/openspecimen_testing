@@ -21,20 +21,14 @@ class ContainerTester(OpenSpecimenTester):
 
         self.goto_item_sub_page(o, page_name='overview', loaded_css_selector='span[translate="container.replicate"]', original='locations')
 
-        sleep(5)
-
         details['overview'] = self.helper.get_overview_details()
 
         self.goto_item_page(o)
-
-        sleep(5)
 
         details['rows'] = self.get_container_children()
         details['slots'] = self.get_container_slots()
 
         self.goto_item_sub_page(o, page_name='specimens', loaded_css_selector='span[translate="common.buttons.download_report"]', original='locations')
-
-        sleep(5)
 
         details['specimens'] = self.helper.get_table_details()
 
