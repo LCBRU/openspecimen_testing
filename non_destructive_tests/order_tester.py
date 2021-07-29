@@ -1,8 +1,8 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from time import sleep
 
 
-class OrderTester(OpenSpecimenTester):
+class OrderTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'order'
 

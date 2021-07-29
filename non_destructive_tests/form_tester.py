@@ -1,9 +1,9 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from selenium.webdriver.common.by import By
 from time import sleep
 
 
-class FormTester(OpenSpecimenTester):
+class FormTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'form'
 

@@ -1,7 +1,7 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
-class UserTester(OpenSpecimenTester):
+class UserTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'user'
 

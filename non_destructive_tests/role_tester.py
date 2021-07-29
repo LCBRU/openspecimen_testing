@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
-class RoleTester(OpenSpecimenTester):
+class RoleTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'role'
 

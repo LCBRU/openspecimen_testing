@@ -1,9 +1,9 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from time import sleep
 from selenium.webdriver.common.by import By
 
 
-class ContainerTester(OpenSpecimenTester):
+class ContainerTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'container'
 

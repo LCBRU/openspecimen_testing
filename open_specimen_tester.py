@@ -115,7 +115,7 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
         return result
 
 
-class OpenSpecimenTester():
+class OpenSpecimenNonDestructiveTester():
     def __init__(self, helper):
         self.helper = helper
 

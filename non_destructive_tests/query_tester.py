@@ -1,8 +1,8 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from selenium.webdriver.common.by import By
 from time import sleep
 
-class QueryTester(OpenSpecimenTester):
+class QueryTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'query'
 

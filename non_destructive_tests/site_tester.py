@@ -1,7 +1,7 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
-class SiteTester(OpenSpecimenTester):
+class SiteTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'site'
 

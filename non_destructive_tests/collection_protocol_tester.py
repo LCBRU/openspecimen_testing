@@ -1,8 +1,8 @@
 from time import sleep
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
-class CollectionProtocolTester(OpenSpecimenTester):
+class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'collection_protocol'
 
@@ -46,7 +46,7 @@ class CollectionProtocolTester(OpenSpecimenTester):
         return details
 
 
-class CollectionProtocolParticipantTester(OpenSpecimenTester):
+class CollectionProtocolParticipantTester(OpenSpecimenNonDestructiveTester):
     def __init__(self, helper, collection_protocol_name, cp_url):
         super().__init__(helper)
 
@@ -89,7 +89,7 @@ class CollectionProtocolParticipantTester(OpenSpecimenTester):
         return details
 
 
-class CollectionProtocolParticipantSampleTester(OpenSpecimenTester):
+class CollectionProtocolParticipantSampleTester(OpenSpecimenNonDestructiveTester):
     def __init__(self, helper, ppid, participant_url):
         super().__init__(helper)
 
