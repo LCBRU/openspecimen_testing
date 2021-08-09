@@ -1,6 +1,8 @@
 import logging
 import os
 from open_specimen_tester import OpenSpecimenSeleniumTestHelper
+from destructive_tests.cart_tester import CartTester
+from destructive_tests.collection_protocol_tester import CollectionProtocolTester
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -31,6 +33,8 @@ started = datetime.now()
 h.login()
 
 testers = [
+    # CartTester(h),
+    CollectionProtocolTester(h),
 ]
 
 for t in testers:

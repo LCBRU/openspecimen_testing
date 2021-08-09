@@ -213,6 +213,10 @@ class OpenSpecimenDestructiveTester(OpenSpecimenTester):
     def validate_item(self):
         raise NotImplementedError()
 
+    def cleanup_item(self):
+        raise NotImplementedError()
+
     def run(self):
         self.create_item()
         self.validate_item()
+        self.cleanup_item()

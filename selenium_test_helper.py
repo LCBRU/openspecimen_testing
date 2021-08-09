@@ -142,6 +142,3 @@ class SeleniumTestHelper:
             return True
         else:
             return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)
-
-    def run(self):
-        pass
