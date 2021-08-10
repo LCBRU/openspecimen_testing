@@ -150,8 +150,6 @@ class CollectionProtocolTester(OpenSpecimenDestructiveTester):
 
 
     def cleanup_item(self):
-        return
-
         self.goto_collection_protocol()
 
         self.helper.click_element(
