@@ -33,7 +33,7 @@ h = OpenSpecimenSeleniumTestHelper(
     page_wait_time=float(os.environ["PAGE_WAIT_TIME"]),
     username=os.environ["OS_USERNAME"],
     password=os.environ["OS_PASSWORD"],
-    version='5.0',
+    version=os.environ["OS_VERSION"],
     sampling_type=os.environ["SAMPLING_TYPE"],
 )
 

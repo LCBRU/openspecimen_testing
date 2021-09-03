@@ -33,6 +33,7 @@ class SeleniumTestHelper:
         self.download_wait_time = download_wait_time
         self.page_wait_time = page_wait_time
         self.sampling_type = sampling_type
+        self.version = version
 
         self._username = username
         self._password = password

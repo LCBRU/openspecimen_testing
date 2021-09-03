@@ -26,7 +26,10 @@ class DistributionProtocolTester(OpenSpecimenNonDestructiveTester):
 
         details['requirements'] = self.helper.get_table_details()
 
-        self.goto_item_sub_page(o, 'reserved-specimens', 'span[translate="specimens.ppid"]')
+        if self.helper.version >= '5.1':
+            self.goto_item_sub_page(o, 'reserved-specimens', 'span[translate="dp.distribute_all"]')
+        else:
+            self.goto_item_sub_page(o, 'reserved-specimens', 'span[translate="specimens.ppid"]')
 
         details['reserved'] = self.helper.get_table_details()
 

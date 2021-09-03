@@ -14,7 +14,8 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
         return 'a[ui-sref="container-detail.locations({containerId: container.id})"]'
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="container.assign_positions"]'
+        # return 'span[translate="container.assign_positions"]'
+        return 'span.slot-desc' # v5.1
 
     def visit_item(self, o):
         details = {}
