@@ -75,7 +75,7 @@ class CollectionProtocolParticipantTester(OpenSpecimenNonDestructiveTester):
         details['visits'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-3')
         details['visit-specimens'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-9')
 
-        self.goto_item_sub_page(x, 'specimens', 'span[translate="specimens.buttons.collect"]')
+        self.goto_item_sub_page(x, 'specimens', 'span[translate="specimens.list"]')
 
         details['specimens'] = self.helper.get_table_details()
 
@@ -102,7 +102,7 @@ class CollectionProtocolParticipantSampleTester(OpenSpecimenNonDestructiveTester
         return 'a[ui-sref^="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId"]'
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="common.buttons.edit"]'
+        return 'span[translate="common.buttons.hide_activity"]'
 
     def visit_item(self, x):
         details = {}
