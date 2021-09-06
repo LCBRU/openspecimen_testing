@@ -33,6 +33,7 @@ class SeleniumTestHelper:
         self.download_wait_time = download_wait_time
         self.page_wait_time = page_wait_time
         self.sampling_type = sampling_type
+        self.version = version
 
         self._username = username
         self._password = password
@@ -145,6 +146,3 @@ class SeleniumTestHelper:
             return True
         else:
             return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)
-
-    def run(self):
-        pass

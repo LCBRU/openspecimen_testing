@@ -1,7 +1,7 @@
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
-class JobTester(OpenSpecimenTester):
+class JobTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'job'
 

@@ -1,8 +1,8 @@
 from time import sleep
-from open_specimen_tester import OpenSpecimenTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
-class CartTester(OpenSpecimenTester):
+class CartTester(OpenSpecimenNonDestructiveTester):
     def object_name(self):
         return 'cart'
 

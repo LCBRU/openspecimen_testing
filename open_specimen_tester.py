@@ -120,22 +120,13 @@ class OpenSpecimenTester():
         self.helper = helper
 
     def object_name(self):
-        return 'dumbo'
+        raise NotImplementedError()
 
     def function_page_url(self):
-        return ''
-
-    def export_link_css_selector(self):
-        return ''
+        raise NotImplementedError()
 
     def item_page_loaded_css_selector(self):
-        return ''
-
-    def _export_filename(self):
-        return f'{self.object_name()}_export.jsonl'
-
-    def _details_filename(self):
-        return f'{self.object_name()}_details.jsonl'
+        raise NotImplementedError()
 
     def goto_function_page(self):
         self.helper.get(f'#/{self.function_page_url()}')
@@ -159,6 +150,17 @@ class OpenSpecimenTester():
         self.helper.get_element(loaded_css_selector, By.CSS_SELECTOR)
         sleep(self.helper.page_wait_time)
         
+
+class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
+    def export_link_css_selector(self):
+        raise NotImplementedError()
+
+    def _export_filename(self):
+        return f'{self.object_name()}_export.jsonl'
+
+    def _details_filename(self):
+        return f'{self.object_name()}_details.jsonl'
+
     def get_export(self):
         logging.info('Exporting')
 
@@ -206,3 +208,19 @@ class OpenSpecimenTester():
         self.get_export()
         self.visit_items()
 
+
+class OpenSpecimenDestructiveTester(OpenSpecimenTester):
+
+    def create_item(self):
+        raise NotImplementedError()
+
+    def validate_item(self):
+        raise NotImplementedError()
+
+    def cleanup_item(self):
+        raise NotImplementedError()
+
+    def run(self):
+        self.create_item()
+        self.validate_item()
+        self.cleanup_item()
