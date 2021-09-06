@@ -44,16 +44,16 @@ started = datetime.now()
 h.login()
 
 testers = [
-    # SiteTester(h),
-    # UserTester(h),
-    # RoleTester(h),
-    # QueryTester(h),
-    # OrderTester(h),
-    # JobTester(h),
-    # InstituteTester(h),
-    # FormTester(h),
-    # DistributionProtocolTester(h),
-    # ContainerTester(h),
+    SiteTester(h),
+    UserTester(h),
+    RoleTester(h),
+    QueryTester(h),
+    OrderTester(h),
+    JobTester(h),
+    InstituteTester(h),
+    FormTester(h),
+    DistributionProtocolTester(h),
+    ContainerTester(h),
     CollectionProtocolTester(h),
     CartTester(h),
 ]
