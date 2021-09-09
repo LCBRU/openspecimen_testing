@@ -54,8 +54,8 @@ testers = [
     # InstituteTester(h),
     # FormTester(h),
     # DistributionProtocolTester(h),
-    # ContainerTester(h),
-    CollectionProtocolTester(h),
+    ContainerTester(h),
+    # CollectionProtocolTester(h),
     # CartTester(h),
 ]
 

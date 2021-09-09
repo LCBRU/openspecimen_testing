@@ -4,6 +4,10 @@ from selenium.webdriver.common.by import By
 
 
 class ContainerTester(OpenSpecimenNonDestructiveTester):
+    VERSION_OVERVIEW_LABEL_RENAMES = {
+        '5.0': {'Collection Protocols': 'Collection Protocol'},
+    }
+
     def object_name(self):
         return 'container'
 
@@ -22,7 +26,12 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
 
         self.goto_item_sub_page(o, page_name='overview', loaded_css_selector='span[translate="container.replicate"]', original='locations')
 
-        details['overview'] = self.helper.get_overview_details()
+        overview = self.helper.get_overview_details()
+
+        for to_rename in self.VERSION_OVERVIEW_LABEL_RENAMES[self.helper.compare_version].keys():
+            overview = {self.VERSION_OVERVIEW_LABEL_RENAMES[self.helper.compare_version][to_rename] if k == to_rename else k:v for k,v in overview.items()}
+
+        details['overview'] = overview
 
         self.goto_item_page(o)
 
