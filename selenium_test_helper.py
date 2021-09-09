@@ -12,6 +12,7 @@ from pathlib import Path
 class SeleniumTestHelper:
     SAMPLING_TYPE_ALL = 'all'
     SAMPLING_TYPE_FIBONACCI = 'fibonacci'
+    SAMPLING_TYPE_FIRST = 'first'
 
     def __init__(
         self,
@@ -19,6 +20,7 @@ class SeleniumTestHelper:
         download_directory,
         base_url,
         version,
+        compare_version,
         headless=True,
         implicit_wait_time=1,
         click_wait_time=0.2,
@@ -34,6 +36,7 @@ class SeleniumTestHelper:
         self.page_wait_time = page_wait_time
         self.sampling_type = sampling_type
         self.version = version
+        self.compare_version = compare_version
 
         self._username = username
         self._password = password
@@ -144,5 +147,7 @@ class SeleniumTestHelper:
 
         if self.sampling_type == SeleniumTestHelper.SAMPLING_TYPE_ALL:
             return True
+        elif self.sampling_type == SeleniumTestHelper.SAMPLING_TYPE_FIRST:
+            return n == 0
         else:
             return is_perfect_square(5*n*n + 4) or is_perfect_square(5*n*n - 4)

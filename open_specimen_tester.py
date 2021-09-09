@@ -1,6 +1,7 @@
 import logging
 import jsonlines
 import csv
+import collections
 from time import sleep
 from selenium_test_helper import SeleniumTestHelper
 from selenium.webdriver.common.by import By
@@ -81,10 +82,13 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
 
         return result
 
-    def get_table_details(self):
+    def get_table_details(self, columns=None):
         result = []
 
-        headers = [self.get_text(h) for h in self.get_elements('table.os-table thead .col span', By.CSS_SELECTOR)]
+        headers = [self.get_text(h) for h in self.get_elements('table.os-table thead .col span:first-of-type', By.CSS_SELECTOR)]
+
+        if not columns:
+            columns = headers
 
         for row in self.get_elements('.container table.os-table tbody tr', By.CSS_SELECTOR):
             details = {}
@@ -102,15 +106,17 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
                 else:
                     header = str(i)
 
-                if value.tag_name == 'a':
-                    details[header] = {
-                        'href': self.get_href(value),
-                        'value': self.get_text(value),
-                    }
-                else:
-                    details[header] = self.get_text(value)
+                if header in columns:
+                    if value.tag_name == 'a':
+                        details[header] = {
+                            'href': self.get_href(value),
+                            'value': self.get_text(value),
+                        }
+                    else:
+                        details[header] = self.get_text(value)
 
-            result.append(details)
+            if len(details) > 0:
+                result.append(collections.OrderedDict(sorted(details.items())))
 
         return result
 
@@ -167,6 +173,8 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
         self.goto_function_page()
         sleep(self.helper.page_wait_time)
 
+        existing = []
+
         with jsonlines.open(self.helper.output_directory / self._export_filename(), mode='w') as writer:
             for x in self.helper.get_elements(self.export_link_css_selector(), By.CSS_SELECTOR):
                 href = self.helper.get_href(x)
@@ -178,7 +186,10 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
                     'name': self.helper.get_text(x),
                     'href': href,
                 }
-                writer.write(details)
+                if details not in existing:
+                    existing.append(details)
+
+                    writer.write(details)
 
     def visit_items(self):
         logging.info(f'Visiting All {self.object_name()}s')

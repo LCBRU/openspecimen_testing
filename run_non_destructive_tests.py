@@ -37,6 +37,7 @@ h = OpenSpecimenSeleniumTestHelper(
     password=os.environ["OS_PASSWORD"],
     version=os.environ["OS_VERSION"],
     sampling_type=os.environ["SAMPLING_TYPE"],
+    compare_version=os.environ["OS_COMPARE_VERSION"],
 )
 
 started = datetime.now()
@@ -44,18 +45,18 @@ started = datetime.now()
 h.login()
 
 testers = [
-    SiteTester(h),
-    UserTester(h),
-    RoleTester(h),
-    QueryTester(h),
-    OrderTester(h),
-    JobTester(h),
-    InstituteTester(h),
-    FormTester(h),
-    DistributionProtocolTester(h),
-    ContainerTester(h),
+    # SiteTester(h),
+    # UserTester(h),
+    # RoleTester(h),
+    # QueryTester(h),
+    # OrderTester(h),
+    # JobTester(h),
+    # InstituteTester(h),
+    # FormTester(h),
+    # DistributionProtocolTester(h),
+    # ContainerTester(h),
     CollectionProtocolTester(h),
-    CartTester(h),
+    # CartTester(h),
 ]
 
 PROGRESS_FILENAME = h.output_directory / 'progress.json'

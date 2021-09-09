@@ -10,7 +10,7 @@ class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
         return 'cps'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="cp-summary-view({cpId: cp.id})"]'
+        return 'td:nth-of-type(2) a[ui-sref="cp-summary-view({cpId: cp.id})"]'
 
     def item_page_loaded_css_selector(self):
         return 'span[translate="cp.view_specimens"]'
@@ -110,4 +110,6 @@ class CollectionProtocolParticipantSampleTester(OpenSpecimenNonDestructiveTester
         self.goto_item_page(x)
 
         details['overview'] = self.helper.get_overview_details()
+
+        return details
 
