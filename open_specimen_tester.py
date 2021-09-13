@@ -194,7 +194,8 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
                 if details not in existing:
                     existing.append(details)
 
-                    writer.write(details)
+            for i in sorted(existing, key=lambda i: i['name']):
+                writer.write(i)
 
     def visit_items(self):
         logging.info(f'Visiting All {self.object_name()}s')
