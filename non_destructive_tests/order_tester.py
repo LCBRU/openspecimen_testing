@@ -3,6 +3,10 @@ from time import sleep
 
 
 class OrderTester(OpenSpecimenNonDestructiveTester):
+    VERSION_COLUMNS = {
+        '5.0': ["Requestor", "Receiving Site", "Distribution Protocol", "Distributor", "Status", "Distribution Date", "Tracking URL", "Created By", "Created On"],
+    }
+
     def object_name(self):
         return 'order'
 
@@ -16,7 +20,11 @@ class OrderTester(OpenSpecimenNonDestructiveTester):
         return 'h3[translate="audit.activity"]'
 
     def visit_item(self, o):
-        details = super().visit_item(o)
+        details = {}
+
+        self.goto_item_page(o)
+
+        details['overview'] = self.helper.get_overview_details(self.VERSION_COLUMNS[self.helper.compare_version])
 
         self.goto_item_sub_page(o, page_name='items', loaded_css_selector='span[translate="orders.spec.label"]')
 
