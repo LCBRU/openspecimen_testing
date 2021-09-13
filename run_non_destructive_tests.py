@@ -53,8 +53,8 @@ testers = [
     # JobTester(h),
     # InstituteTester(h),
     # FormTester(h),
-    # DistributionProtocolTester(h),
-    ContainerTester(h),
+    DistributionProtocolTester(h),
+    # ContainerTester(h),
     # CollectionProtocolTester(h),
     # CartTester(h),
 ]

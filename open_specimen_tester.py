@@ -37,7 +37,7 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
         
         self.clear_download_directory()
 
-    def get_overview_details(self):
+    def get_overview_details(self, columns=None):
         details = {}
 
         for kvpair in self.driver.find_elements_by_css_selector('ul.os-key-values li'):
@@ -46,13 +46,16 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
             values = kvpair.find_elements(By.CSS_SELECTOR, 'span, a')
             value = [x for x in sorted(values, key=lambda x: x.tag_name)][0]
 
-            if value.tag_name == 'a':
-                details[self.get_text(title)] = {
-                    'href': self.get_href(value),
-                    'value': self.get_text(value),
-                }
-            else:
-                details[self.get_text(title)] = self.get_text(value)
+            header = self.get_text(title)
+
+            if columns is None or header in columns:
+                if value.tag_name == 'a':
+                    details[header] = {
+                        'href': self.get_href(value),
+                        'value': self.get_text(value),
+                    }
+                else:
+                    details[header] = self.get_text(value)
 
         return details
 
@@ -113,7 +116,9 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
                             'value': self.get_text(value),
                         }
                     else:
-                        details[header] = self.get_text(value)
+                        val = self.get_text(value)
+                        if header or val:
+                            details[header] = val
 
             if len(details) > 0:
                 result.append(collections.OrderedDict(sorted(details.items())))

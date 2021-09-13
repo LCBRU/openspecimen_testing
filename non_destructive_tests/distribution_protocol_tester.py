@@ -2,6 +2,10 @@ from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
 class DistributionProtocolTester(OpenSpecimenNonDestructiveTester):
+    VERSION_COLUMNS = {
+        '5.0': ["Title", "Short Title", "Receiving Institute", "Receiving Site", "Principal Investigator", "Start Date", "End Date", "Ethics ID", "Order Custom Fields", "Order Report Query", "Created By", "Created On"],
+    }
+
     def object_name(self):
         return 'distribution_protocol'
 
@@ -16,7 +20,11 @@ class DistributionProtocolTester(OpenSpecimenNonDestructiveTester):
 
     def visit_item(self, o):
 
-        details = super().visit_item(o)
+        details = {}
+
+        self.goto_item_page(o)
+
+        details['overview'] = self.helper.get_overview_details(self.VERSION_COLUMNS[self.helper.compare_version])
 
         self.goto_item_sub_page(o, 'history', 'span[translate="common.buttons.export"]')
 
