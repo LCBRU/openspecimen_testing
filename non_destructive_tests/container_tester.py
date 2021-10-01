@@ -1,3 +1,4 @@
+from selenium_test_helper import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from time import sleep
 from selenium.webdriver.common.by import By
@@ -24,12 +25,12 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
     def visit_item(self, o):
         details = {}
 
-        self.goto_item_sub_page(o, page_name='overview', loaded_css_selector='span[translate="container.replicate"]', original='locations')
+        self.goto_item_sub_page(o, page_name='overview', selector=CssSelector('span[translate="container.replicate"]'), original='locations')
 
         overview = self.helper.get_overview_details()
 
-        for to_rename in self.VERSION_OVERVIEW_LABEL_RENAMES[self.helper.compare_version].keys():
-            overview = {self.VERSION_OVERVIEW_LABEL_RENAMES[self.helper.compare_version][to_rename] if k == to_rename else k:v for k,v in overview.items()}
+        for to_rename in self.VERSION_OVERVIEW_LABEL_RENAMES.get(self.helper.compare_version, {}).keys():
+            overview = {self.VERSION_OVERVIEW_LABEL_RENAMES.get(self.helper.compare_version, {})[to_rename] if k == to_rename else k:v for k,v in overview.items()}
 
         details['overview'] = overview
 
@@ -38,7 +39,7 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
         details['rows'] = self.get_container_children()
         details['slots'] = self.get_container_slots()
 
-        self.goto_item_sub_page(o, page_name='specimens', loaded_css_selector='span[translate="common.buttons.download_report"]', original='locations')
+        self.goto_item_sub_page(o, page_name='specimens', selector=CssSelector('span[translate="common.buttons.download_report"]'), original='locations')
 
         details['specimens'] = self.helper.get_table_details()
 

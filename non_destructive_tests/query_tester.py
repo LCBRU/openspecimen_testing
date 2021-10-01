@@ -1,3 +1,4 @@
+import collections
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from selenium.webdriver.common.by import By
 from time import sleep
@@ -47,4 +48,4 @@ class QueryTester(OpenSpecimenNonDestructiveTester):
 
             result.append(details)
 
-        return result
+        return sorted(result, key=lambda r: r.__repr__())

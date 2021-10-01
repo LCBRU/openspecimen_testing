@@ -24,6 +24,6 @@ class CartTester(OpenSpecimenNonDestructiveTester):
 
         self.goto_item_page(x)
 
-        details['samples'] = self.helper.get_table_details(self.VERSION_COLUMNS[self.helper.compare_version])
+        details['samples'] = self.helper.get_table_details(self.VERSION_COLUMNS.get(self.helper.compare_version, None))
 
         return details

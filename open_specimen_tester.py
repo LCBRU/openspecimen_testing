@@ -5,6 +5,7 @@ import collections
 from time import sleep
 from selenium_test_helper import SeleniumTestHelper
 from selenium.webdriver.common.by import By
+from werkzeug.utils import secure_filename
 
 
 class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
@@ -59,33 +60,69 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
 
         return details
 
-    def get_div_table_details(self, parent_element_css_selector=''):
+    def get_div_table_details(self, parent_element_css_selector='', columns=None):
         result = []
 
         headers = [self.get_text(h) for h in self.get_elements(f'{parent_element_css_selector} div.os-table-head div.col span, div.os-table-head div.col', By.CSS_SELECTOR)]
 
-        for row in self.get_elements(f'{parent_element_css_selector} div.row', By.CSS_SELECTOR):
+        for row in self.get_elements(f'{parent_element_css_selector} div.os-table-body div.row', By.CSS_SELECTOR):
             details = {}
 
-            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'div.col a, div.col')):
+            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'div.col')):
+                values = sorted(cell.find_elements(By.CSS_SELECTOR, 'span, a'), key=lambda x: x.tag_name)
+
+                if len(values) > 0:
+                    value = values[0]
+                else:
+                    value = cell
+                
                 if i < len(headers):
                     header = headers[i]
                 else:
                     header = str(i)
 
-                if cell.tag_name == 'a':
-                    details[header] = {
-                        'href': self.get_href(cell),
-                        'value': self.get_text(cell),
-                    }
-                else:
-                    details[header] = self.get_text(cell)
+                if columns is None or header in columns:
+                    if value.tag_name == 'a':
+                        details[header] = {
+                            'href': self.get_href(value),
+                            'value': self.get_text(value),
+                        }
+                    else:
+                        details[header] = self.get_text(value)
 
             result.append(details)
 
         return result
 
-    def get_table_details(self, columns=None):
+    def get_list_group_details(self, parent_element_css_selector='', columns=None):
+        result = []
+
+        header = [self.get_text(h) for h in self.get_elements(f'{parent_element_css_selector} div.list-group .os-section-hdr', By.CSS_SELECTOR)][0]
+
+        for cell in self.get_elements(f'{parent_element_css_selector} div.list-group .os-cpe-item .list-group-item', By.CSS_SELECTOR):
+            details = {}
+
+            values = sorted(cell.find_elements(By.CSS_SELECTOR, 'span, a'), key=lambda x: x.tag_name)
+
+            if len(values) > 0:
+                value = values[0]
+            else:
+                value = cell
+            
+            if columns is None or header in columns:
+                if value.tag_name == 'a':
+                    details[header] = {
+                        'href': self.get_href(value),
+                        'value': self.get_text(value),
+                    }
+                else:
+                    details[header] = self.get_text(value)
+
+            result.append(details)
+
+        return result
+
+    def get_table_details(self, columns=None, has_container=True):
         result = []
 
         headers = [self.get_text(h) for h in self.get_elements('table.os-table thead .col span:first-of-type', By.CSS_SELECTOR)]
@@ -93,7 +130,9 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
         if not columns:
             columns = headers
 
-        for row in self.get_elements('.container table.os-table tbody tr', By.CSS_SELECTOR):
+        container = '.container' if has_container else ''
+
+        for row in self.get_elements(f'{container} table.os-table tbody tr', By.CSS_SELECTOR):
             details = {}
 
             for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'td')):
@@ -149,10 +188,10 @@ class OpenSpecimenTester():
         self.helper.get_element(self.item_page_loaded_css_selector(), By.CSS_SELECTOR)
         sleep(self.helper.page_wait_time)
 
-    def goto_item_sub_page(self, o, page_name, loaded_css_selector, original='overview'):
+    def goto_item_sub_page(self, o, page_name, selector, original='overview'):
         self.goto_function_page()
         self.helper.get(o['href'].replace(original, page_name))
-        self.helper.get_element(loaded_css_selector, By.CSS_SELECTOR)
+        self.helper.get_element(selector.query, selector.by)
         sleep(self.helper.page_wait_time)
         
     def goto_item_custom_page(self, url, loaded_css_selector):
@@ -167,10 +206,10 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
         raise NotImplementedError()
 
     def _export_filename(self):
-        return f'{self.object_name()}_export.jsonl'
+        return secure_filename(f'{self.object_name()}_export.jsonl')
 
     def _details_filename(self):
-        return f'{self.object_name()}_details.jsonl'
+        return secure_filename(f'{self.object_name()}_details.jsonl')
 
     def get_export(self):
         logging.info('Exporting')

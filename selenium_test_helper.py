@@ -9,6 +9,20 @@ from urllib.parse import urljoin
 from pathlib import Path
 
 
+class Selector:
+    def __init__(self, query, by):
+        self.query = query
+        self.by = by
+
+class CssSelector(Selector):
+    def __init__(self, query):
+        super().__init__(query, By.CSS_SELECTOR)
+
+class XpathSelector(Selector):
+    def __init__(self, query):
+        super().__init__(query, By.XPATH)
+
+
 class SeleniumTestHelper:
     SAMPLING_TYPE_ALL = 'all'
     SAMPLING_TYPE_FIBONACCI = 'fibonacci'

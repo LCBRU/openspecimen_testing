@@ -1,8 +1,17 @@
+from selenium_test_helper import CssSelector
 from time import sleep
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
 class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
+    VERSION_SPECIMEN_REQUIREMENTS_COLUMNS = {
+        '5.1': ["Name", "Type"],
+    }
+    VERSION_EVENTS_COLUMNS = {
+        '5.1': [],
+    }
+
+
     def object_name(self):
         return 'collection_protocol'
 
@@ -30,8 +39,8 @@ class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
 
         self.goto_item_custom_page(events_url, 'span[translate="cp.cpe_list"]')
 
-        details['events'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-3')
-        details['specimens requirements'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-9')
+        details['events'] = self.helper.get_list_group_details(parent_element_css_selector='div.col-xs-3', columns=self.VERSION_SPECIMEN_REQUIREMENTS_COLUMNS.get(self.helper.compare_version, None))
+        details['specimens requirements'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-9', columns=self.VERSION_SPECIMEN_REQUIREMENTS_COLUMNS.get(self.helper.compare_version, None))
 
         # Participants
         self.goto_item_page(x)
@@ -45,6 +54,10 @@ class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
 
 
 class CollectionProtocolParticipantTester(OpenSpecimenNonDestructiveTester):
+    VERSION_OVERVIEW_COLUMNS = {
+        '5.1': ["Registration Date", "Registration Site", "Birth Date", "Master Patient Index", "National ID", "Gender", "Ethnicity", "Race", "Vital Status", "Created By", "Created On"],
+    }
+
     def __init__(self, helper, collection_protocol_name, cp_url):
         super().__init__(helper)
 
@@ -68,24 +81,28 @@ class CollectionProtocolParticipantTester(OpenSpecimenNonDestructiveTester):
 
         self.goto_item_page(x)
 
-        details['overview'] = self.helper.get_overview_details()
+        details['overview'] = self.helper.get_overview_details(self.VERSION_OVERVIEW_COLUMNS.get(self.helper.compare_version, None))
 
-        self.goto_item_sub_page(x, 'visits-summary', 'span[translate="visits.list"]')
+        self.goto_item_sub_page(x, 'visits-summary', CssSelector('span[translate="visits.list"]'))
 
         details['visits'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-3')
         details['visit-specimens'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-9')
 
-        self.goto_item_sub_page(x, 'specimens', 'span[translate="specimens.list"]')
+        self.goto_item_sub_page(x, 'specimens', CssSelector('span[translate="specimens.list"]'))
 
         details['specimens'] = self.helper.get_table_details()
 
-        cppt = CollectionProtocolParticipantSampleTester(self.helper, details['overview']['PPID'], self.function_page_url().replace('overview', 'specimens'))
+        cppt = CollectionProtocolParticipantSampleTester(self.helper, x['name'], self.function_page_url().replace('overview', 'specimens'))
         cppt.run()
 
         return details
 
 
 class CollectionProtocolParticipantSampleTester(OpenSpecimenNonDestructiveTester):
+    VERSION_OVERVIEW_COLUMNS = {
+        '5.1': ["Lineage", "Collection Status", "Anatomic Site", "Laterality", "Initial Quantity", "Available Quantity", "Concentration", "Pathology", "Storage Location", "Biohazards", "Created On", "Freeze/Thaw Cycles"],
+    }
+
     def __init__(self, helper, ppid, participant_url):
         super().__init__(helper)
 
@@ -109,7 +126,7 @@ class CollectionProtocolParticipantSampleTester(OpenSpecimenNonDestructiveTester
 
         self.goto_item_page(x)
 
-        details['overview'] = self.helper.get_overview_details()
+        details['overview'] = self.helper.get_overview_details(self.VERSION_OVERVIEW_COLUMNS.get(self.helper.compare_version, None))
 
         return details
 

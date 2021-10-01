@@ -28,6 +28,10 @@ class FormTester(OpenSpecimenNonDestructiveTester):
 
         self.goto_preview(o)
 
+        details['name'] = o['name']
+
+        sleep(30)
+
         details['preview'] = self.get_form_preview()
 
         return details

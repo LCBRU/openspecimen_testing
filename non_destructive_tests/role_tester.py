@@ -3,6 +3,10 @@ from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
 class RoleTester(OpenSpecimenNonDestructiveTester):
+    VERSION_RESOURCES_RENAME = {
+        '5.0': {"Path Report": "Surgical Pathology Report"},
+    }
+
     def object_name(self):
         return 'role'
 
@@ -32,7 +36,11 @@ class RoleTester(OpenSpecimenNonDestructiveTester):
         for row in self.helper.get_elements('div.os-table-body div.row', By.CSS_SELECTOR):
             details = {}
 
-            details['resource'] = self.helper.get_text(row.find_element(By.CSS_SELECTOR, 'div.col span'))
+            resource = self.helper.get_text(row.find_element(By.CSS_SELECTOR, 'div.col span'))
+
+            resource = self.VERSION_RESOURCES_RENAME.get(self.helper.compare_version, {}).get(resource, resource)
+
+            details['resource'] = resource 
 
             details['permissions'] = [self.helper.get_text(x) for x in row.find_elements(By.CSS_SELECTOR, 'div.os-permissions span[translate]')]
 
