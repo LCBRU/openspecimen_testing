@@ -1,3 +1,6 @@
+from selenium_test_helper import CssSelector
+
+
 class CartFunction:
     VERSION_COLUMNS = {
         '5.0': ['Label', 'Type', 'Anatomic Site', 'Collection Protocol', 'Quantity', 'Lineage'],
@@ -15,14 +18,14 @@ class CartFunction:
     def item_page_loaded_css_selector(self):
         return 'span[translate="specimen_list.distribute_all"]'
 
-    def create_button_css_selector(self):
-        return 'span[translate="common.buttons.create"]'
+    def create_button_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
 
-    def create_page_loaded_css_selector(self):
-        return 'span[translate="specimen_list.create_list"]'
+    def create_page_loaded_selector(self):
+        return CssSelector('span[translate="specimen_list.create_list"]')
 
-    def create_page_create_css_selector(self):
-        return 'span[translate="common.buttons.create"]'
+    def create_page_create_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
 
-    def item_title_css_selector(self):
-        return 'span[title="Fred"]'
+    def item_title_selector(self):
+        return CssSelector('span[title="Fred"]')

@@ -44,8 +44,8 @@ started = datetime.now()
 h.login()
 
 testers = [
-    # CartTester(h),
-    CollectionProtocolTester(h),
+    CartTester(h),
+    # CollectionProtocolTester(h),
     # ContainerTester(h),
 
     # ParticipantStandardTester(h),
