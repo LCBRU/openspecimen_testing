@@ -4,7 +4,7 @@ import os
 from open_specimen_tester import OpenSpecimenSeleniumTestHelper
 from destructive_tests.cart_tester import CartTester
 from destructive_tests.collection_protocol_tester import CollectionProtocolTester
-# from destructive_tests.participant_tester import ParticipantStandardTester, ParticipantBrcTester
+from destructive_tests.participant_tester import ParticipantStandardTester, ParticipantBrcTester
 # from destructive_tests.container_tester import ContainerTester
 # from destructive_tests.distribution_protocol_tester import DistricutionProtocolTester
 # from destructive_tests.institute_tester import InstituteTester
@@ -44,12 +44,12 @@ started = datetime.now()
 h.login()
 
 testers = [
-    CartTester(h),
+    # CartTester(h),
     # CollectionProtocolTester(h),
     # ContainerTester(h),
+    ParticipantStandardTester(h),
+    ParticipantBrcTester(h),
 
-    # ParticipantStandardTester(h),
-    # ParticipantBrcTester(h),
     # DistricutionProtocolTester(h),
     # InstituteTester(h),
     # OrderTester(h),

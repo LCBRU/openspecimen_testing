@@ -1,7 +1,6 @@
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
 from function.collection_protocol import CollectionProtocolFunction
 from time import sleep
-from selenium.webdriver.common.by import By
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
