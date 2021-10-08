@@ -8,6 +8,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from urllib.parse import urljoin
 from pathlib import Path
 
+# Selectors
 
 class Selector:
     def __init__(self, query, by):
@@ -22,6 +23,57 @@ class XpathSelector(Selector):
     def __init__(self, query):
         super().__init__(query, By.XPATH)
 
+
+# Actions
+
+class Action:
+    def __init__(self, helper, selector):
+        self.helper = helper
+        self.selector = selector
+
+    def do(self):
+        raise NotImplementedError()
+
+
+class SelectAction(Action):
+    def __init__(self, helper, select_selector, item_selector):
+        super().__init__(helper, select_selector)
+        self.item_selector = item_selector
+
+    def do(self):
+        self.helper.click_element_selector(self.selector)
+        self.helper.click_element_selector(self.item_selector)
+
+
+class TypeInTextboxAction(Action):
+    def __init__(self, helper, selector, text):
+        super().__init__(helper, selector)
+        self.text = text
+
+    def do(self):
+        self.helper.type_in_textbox_selector(
+            selector=self.selector,
+            text=self.text,
+        )
+
+
+class ClickAction(Action):
+    def __init__(self, helper, selector):
+        super().__init__(helper, selector)
+
+    def do(self):
+        self.helper.click_element_selector(selector=self.selector)
+
+
+class EnsureAction(Action):
+    def __init__(self, helper, selector):
+        super().__init__(helper, selector)
+
+    def do(self):
+        self.helper.get_element_selector(selector=self.selector)
+
+
+# Helpers
 
 class SeleniumTestHelper:
     SAMPLING_TYPE_ALL = 'all'
@@ -93,9 +145,13 @@ class SeleniumTestHelper:
         self.driver.get(urljoin(self.base_url, url))
         self.get_element('body', By.CSS_SELECTOR, allow_null=False)
 
+    def get_element_selector(self, selector, allow_null=False, wait=10):
+        return self.get_element(selector.query, selector.by, allow_null, wait)
+    
     def get_element(self, query, by, allow_null=False, wait=10):
         try:
             return self.driver.find_element(by, query)
+
         except (NoSuchElementException, TimeoutException) as ex:
             if not allow_null:
                 raise ex
@@ -103,11 +159,21 @@ class SeleniumTestHelper:
     def get_elements(self, query, by):
         return self.driver.find_elements(by, query)
     
+    def type_in_textbox_selector(self, selector, text):
+        element = self.get_element_selector(selector)
+        element.clear()
+        element.send_keys(text)
+
     def type_in_textbox(self, query, by, text):
         element = self.get_element(query, by)
         element.clear()
         element.send_keys(text)
 
+    def click_element_selector(self, selector):
+        element = self.get_element_selector(selector)
+        element.click()
+        sleep(self.click_wait_time)
+    
     def click_element(self, query, by):
         element = self.get_element(query, by)
         element.click()

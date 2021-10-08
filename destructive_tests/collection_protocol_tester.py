@@ -1,96 +1,64 @@
+from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
+from function.collection_protocol import CollectionProtocolFunction
 from time import sleep
 from selenium.webdriver.common.by import By
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
 class CollectionProtocolTester(OpenSpecimenDestructiveTester):
-    def object_name(self):
-        return 'collection_protocol'
+    def __init__(self, helper):
+        super().__init__(helper, CollectionProtocolFunction())
 
-    def function_page_url(self):
-        return 'cps'
-
-    def item_page_loaded_css_selector(self):
-        return 'span[translate="cp.view_specimens"]'
-
-    def create_button_css_selector(self):
-        return 'button[title="Click to add new Collection Protocol"]'
-
-    def create_link_css_selector(self):
-        return 'a > span[translate="common.buttons.create"]'
-
-    def create_page_loaded_css_selector(self):
-        return 'span[translate="cp.create_cp_title"]'
-
-    def create_page_create_css_selector(self):
-        return 'span[translate="common.buttons.create"]'
-
-    def item_title_css_selector(self):
-        return '//span[text()="Fred"]'
-
-    values = {
-            'Sites': {
-                'select_query': 'input[placeholder="Sites"]',
-                'select_by': By.CSS_SELECTOR,
-                'item_query': '//span[text()="Glenfield Hospital"]',
-                'item_by': By.XPATH,
-                'type': 'select',
-            },
-            'Title': {
-                'query': 'input[placeholder="Title"]',
-                'by': By.CSS_SELECTOR,
-                'value': 'Frederick',
-                'type': 'type',
-            },
-            'Short Title': {
-                'query': 'input[placeholder="Short Title"]',
-                'by': By.CSS_SELECTOR,
-                'value': 'Fred',
-                'type': 'type',
-            },
-            'PI': {
-                'select_query': 'div[placeholder="Principal Investigator"]',
-                'select_by': By.CSS_SELECTOR,
-                'item_query': '//span[text()="Adlam, Dave"]',
-                'item_by': By.XPATH,
-                'type': 'select',
-            },
-            'PC': {
-                'select_query': 'div[placeholder="Protocol Coordinators"]',
-                'select_by': By.CSS_SELECTOR,
-                'item_query': '//span[text()="Abanto, Camille"]',
-                'item_by': By.XPATH,
-                'type': 'select',
-            },
-            'Start Date': {
-                'query': 'input[placeholder="Start Date"]',
-                'by': By.CSS_SELECTOR,
-                'value': '01-01-2020',
-                'type': 'type',
-            },
-            'End Date': {
-                'query': 'input[placeholder="End Date"]',
-                'by': By.CSS_SELECTOR,
-                'value': '01-01-2030',
-                'type': 'type',
-            },
-            'Ethics ID': {
-                'query': 'input[placeholder="Ethics ID"]',
-                'by': By.CSS_SELECTOR,
-                'value': 'FR1-1',
-                'type': 'type',
-            },
-            'Type': {
-                'query': 'input[translate="cp.participant_centric"]',
-                'by': By.CSS_SELECTOR,
-                'type': 'radio',
-            },
-            'Participant Count': {
-                'query': 'input[placeholder="Anticipated Participants Count"]',
-                'by': By.CSS_SELECTOR,
-                'value': '12345',
-                'type': 'type',
-            },
+        self.values = {
+            'Sites': SelectAction(
+                helper=self.helper,
+                select_selector=CssSelector('input[placeholder="Sites"]'),
+                item_selector=XpathSelector('//span[text()="Glenfield Hospital"]'),
+            ),
+            'Title': TypeInTextboxAction(
+                helper=self.helper,
+                selector=CssSelector('input[placeholder="Title"]'),
+                text='Frederick',
+            ),
+            'Short Title': TypeInTextboxAction(
+                helper=self.helper,
+                selector=CssSelector('input[placeholder="Short Title"]'),
+                text='Fred',
+            ),
+            'PI': SelectAction(
+                helper=self.helper,
+                select_selector=CssSelector('div[placeholder="Principal Investigator"]'),
+                item_selector=XpathSelector('//span[text()="Adlam, Dave"]'),
+            ),
+            'PC': SelectAction(
+                helper=self.helper,
+                select_selector=CssSelector('div[placeholder="Protocol Coordinators"]'),
+                item_selector=XpathSelector('//span[text()="Abanto, Camille"]'),
+            ),
+            'Start Date': TypeInTextboxAction(
+                helper=self.helper,
+                selector=CssSelector('input[placeholder="Start Date"]'),
+                text='01-01-2020',
+            ),
+            'End Date': TypeInTextboxAction(
+                helper=self.helper,
+                selector=CssSelector('input[placeholder="End Date"]'),
+                text='01-01-2030',
+            ),
+            'Ethics ID': TypeInTextboxAction(
+                helper=self.helper,
+                selector=CssSelector('input[placeholder="Ethics ID"]'),
+                text='FR1-1',
+            ),
+            'Type': ClickAction(
+                helper=self.helper,
+                selector=CssSelector('span[translate="cp.participant_centric"]'),
+            ),
+            'Participant Count': TypeInTextboxAction(
+                helper=self.helper,
+                selector=CssSelector('input[placeholder="Anticipated Participants Count"]'),
+                text='12345',
+            ),
         }
 
     def create_item(self):
@@ -102,40 +70,18 @@ class CollectionProtocolTester(OpenSpecimenDestructiveTester):
 
         sleep(15)
 
-        self.helper.click_element(self.create_button_css_selector(), By.CSS_SELECTOR)
+        ClickAction(helper=self.helper, selector=self.function.create_button_selector()).do()
 
         sleep(1)
 
-        self.helper.click_element(self.create_link_css_selector(), By.CSS_SELECTOR)
+        ClickAction(helper=self.helper, selector=self.function.create_link_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.function.create_page_loaded_selector()).do()
 
-        self.helper.get_element(self.create_page_loaded_css_selector(), By.CSS_SELECTOR)
+        for v in self.values.values():
+            v.do()
 
-        for name, details in self.values.items():
-            if details['type'] == 'type':
-                self.helper.type_in_textbox(
-                    query=details['query'],
-                    by=details['by'],
-                    text=details['value'],
-                )
-            elif details['type'] == 'select':
-                self.helper.click_element(
-                    query=details['select_query'],
-                    by=details['select_by'],
-                )
-                self.helper.click_element(
-                    query=details['item_query'],
-                    by=details['item_by'],
-                )
-
-        self.helper.click_element(
-            query=self.create_page_create_css_selector(),
-            by=By.CSS_SELECTOR,
-        )
-
-        self.helper.get_element(
-            query=self.item_title_css_selector(),
-            by=By.XPATH,
-        )
+        ClickAction(helper=self.helper, selector=self.function.create_page_create_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.function.item_title_selector()).do()
 
 
     def validate_item(self):
@@ -143,24 +89,14 @@ class CollectionProtocolTester(OpenSpecimenDestructiveTester):
 
         sleep(15)
 
-        self.helper.get_element(
-            query=self.item_title_css_selector(),
-            by=By.XPATH,
-        )
+        EnsureAction(helper=self.helper, selector=self.function.item_title_selector()).do()
 
 
     def cleanup_item(self):
         self.goto_collection_protocol()
 
-        self.helper.click_element(
-            query='span[translate="cp.menu_options.delete"]',
-            by=By.CSS_SELECTOR,
-        )
-
-        self.helper.click_element(
-            query='span[translate="common.yes"]',
-            by=By.CSS_SELECTOR,
-        )
+        ClickAction(helper=self.helper, selector=CssSelector('span[translate="cp.menu_options.delete"]')).do()
+        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()
 
 
     def goto_collection_protocol(self):
@@ -168,17 +104,6 @@ class CollectionProtocolTester(OpenSpecimenDestructiveTester):
 
         sleep(15)
 
-        self.helper.click_element(
-            query=self.item_title_css_selector(),
-            by=By.XPATH,
-        )
-
-        self.helper.click_element(
-            query='span[translate="common.buttons.more"]',
-            by=By.CSS_SELECTOR,
-        )
-
-        self.helper.click_element(
-            query='span[translate="cp.view_details"]',
-            by=By.CSS_SELECTOR,
-        )
+        ClickAction(helper=self.helper, selector=self.function.item_title_selector()).do()
+        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.more"]')).do()
+        ClickAction(helper=self.helper, selector=CssSelector('span[translate="cp.view_details"]')).do()

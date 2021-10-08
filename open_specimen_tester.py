@@ -166,17 +166,27 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
 
 
 class OpenSpecimenTester():
-    def __init__(self, helper):
+    def __init__(self, helper, function=None):
         self.helper = helper
+        self.function = function
 
     def object_name(self):
-        raise NotImplementedError()
+        if self.function:
+            return self.function.object_name()
+        else:
+            raise NotImplementedError()
 
     def function_page_url(self):
-        raise NotImplementedError()
+        if self.function:
+            return self.function.function_page_url()
+        else:
+            raise NotImplementedError()
 
     def item_page_loaded_css_selector(self):
-        raise NotImplementedError()
+        if self.function:
+            return self.function.item_page_loaded_css_selector()
+        else:
+            raise NotImplementedError()
 
     def goto_function_page(self):
         self.helper.get(f'#/{self.function_page_url()}')
@@ -266,7 +276,6 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
 
 
 class OpenSpecimenDestructiveTester(OpenSpecimenTester):
-
     def create_item(self):
         raise NotImplementedError()
 

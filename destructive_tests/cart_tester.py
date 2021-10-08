@@ -1,28 +1,11 @@
+from function.cart import CartFunction
 from selenium.webdriver.common.by import By
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
 class CartTester(OpenSpecimenDestructiveTester):
-    def object_name(self):
-        return 'cart'
-
-    def function_page_url(self):
-        return 'specimen-lists'
-
-    def item_page_loaded_css_selector(self):
-        return 'span[translate="specimen_list.distribute_all"]'
-
-    def create_button_css_selector(self):
-        return 'span[translate="common.buttons.create"]'
-
-    def create_page_loaded_css_selector(self):
-        return 'span[translate="specimen_list.create_list"]'
-
-    def create_page_create_css_selector(self):
-        return 'span[translate="common.buttons.create"]'
-
-    def item_title_css_selector(self):
-        return 'span[title="Fred"]'
+    def __init__(self, helper):
+        super().__init__(helper, CartFunction())
 
     values = {
             'Name': {
@@ -56,8 +39,8 @@ class CartTester(OpenSpecimenDestructiveTester):
     def create_item(self):
         self.goto_function_page()
 
-        self.helper.click_element(self.create_button_css_selector(), By.CSS_SELECTOR)
-        self.helper.get_element(self.create_page_loaded_css_selector(), By.CSS_SELECTOR)
+        self.helper.click_element(self.function.create_button_css_selector(), By.CSS_SELECTOR)
+        self.helper.get_element(self.function.create_page_loaded_css_selector(), By.CSS_SELECTOR)
 
         for name, details in self.values.items():
             if details['type'] == 'type':
@@ -77,12 +60,12 @@ class CartTester(OpenSpecimenDestructiveTester):
                 )
 
         self.helper.click_element(
-            query=self.create_page_create_css_selector(),
+            query=self.function.create_page_create_css_selector(),
             by=By.CSS_SELECTOR,
         )
 
         self.helper.get_element(
-            query=self.item_title_css_selector(),
+            query=self.function.item_title_css_selector(),
             by=By.CSS_SELECTOR,
         )
 
@@ -91,7 +74,7 @@ class CartTester(OpenSpecimenDestructiveTester):
         self.goto_function_page()
 
         self.helper.get_element(
-            query=self.item_title_css_selector(),
+            query=self.function.item_title_css_selector(),
             by=By.CSS_SELECTOR,
         )
 
@@ -100,7 +83,7 @@ class CartTester(OpenSpecimenDestructiveTester):
         self.goto_function_page()
 
         self.helper.click_element(
-            query=self.item_title_css_selector(),
+            query=self.function.item_title_css_selector(),
             by=By.CSS_SELECTOR,
         )
 
