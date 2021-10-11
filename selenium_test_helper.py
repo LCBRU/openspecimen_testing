@@ -32,6 +32,24 @@ class Action:
         self.selector = selector
 
     def do(self):
+        retried = 0
+
+        while True:
+            try:
+                self._do()
+
+                return
+
+            except Exception as e:
+                if retried > 2:
+                    raise e
+
+                sleep(1)
+                retried += 1
+
+                print('Retrying...')
+
+    def _do(self):
         raise NotImplementedError()
 
 
@@ -40,7 +58,7 @@ class SelectAction(Action):
         super().__init__(helper, select_selector)
         self.item_selector = item_selector
 
-    def do(self):
+    def _do(self):
         self.helper.click_element_selector(self.selector)
         self.helper.click_element_selector(self.item_selector)
 
@@ -50,7 +68,7 @@ class TypeInTextboxAction(Action):
         super().__init__(helper, selector)
         self.text = text
 
-    def do(self):
+    def _do(self):
         self.helper.type_in_textbox_selector(
             selector=self.selector,
             text=self.text,
@@ -61,7 +79,7 @@ class ClickAction(Action):
     def __init__(self, helper, selector):
         super().__init__(helper, selector)
 
-    def do(self):
+    def _do(self):
         self.helper.click_element_selector(selector=self.selector)
 
 
@@ -69,7 +87,7 @@ class EnsureAction(Action):
     def __init__(self, helper, selector):
         super().__init__(helper, selector)
 
-    def do(self):
+    def _do(self):
         self.helper.get_element_selector(selector=self.selector)
 
 

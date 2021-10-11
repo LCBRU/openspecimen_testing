@@ -9,10 +9,10 @@ from destructive_tests.container_tester import ContainerTester
 from destructive_tests.distribution_protocol_tester import DistricutionProtocolTester
 from destructive_tests.institute_tester import InstituteTester
 from destructive_tests.order_tester import OrderTester
-# from destructive_tests.query_tester import QueryTester
-# from destructive_tests.role_tester import RoleTester
-# from destructive_tests.site_tester import SiteTester
-# from destructive_tests.user_tester import UserTester
+from destructive_tests.query_tester import QueryTester
+from destructive_tests.role_tester import RoleTester
+from destructive_tests.site_tester import SiteTester
+from destructive_tests.user_tester import UserTester
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -44,19 +44,18 @@ started = datetime.now()
 h.login()
 
 testers = [
-    # CartTester(h),
-    # CollectionProtocolTester(h),
-    # ContainerTester(h),
-    # ParticipantStandardTester(h),
-    # ParticipantBrcTester(h),
-    # DistricutionProtocolTester(h),
-    # InstituteTester(h),
-
+    CartTester(h),
+    CollectionProtocolTester(h),
+    ContainerTester(h),
+    ParticipantStandardTester(h),
+    ParticipantBrcTester(h),
+    DistricutionProtocolTester(h),
+    InstituteTester(h),
     OrderTester(h),
-    # QueryTester(h),
-    # RoleTester(h),
-    # SiteTester(h),
-    # UserTester(h),
+    QueryTester(h),
+    RoleTester(h),
+    SiteTester(h),
+    UserTester(h),
 ]
 
 for t in testers:
