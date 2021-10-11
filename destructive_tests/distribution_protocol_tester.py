@@ -1,12 +1,11 @@
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.distribution_protocol import DistricutionProtocolFunction
-from selenium.webdriver.common.by import By
+from function.distribution_protocol import selectors, outputs
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
 class DistricutionProtocolTester(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, DistricutionProtocolFunction())
+        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
 
 
         self.values = {
@@ -40,25 +39,25 @@ class DistricutionProtocolTester(OpenSpecimenDestructiveTester):
     def create_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.function.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.function.create_page_loaded_selector()).do()
+        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
 
         for v in self.values.values():
             v.do()
 
-        ClickAction(helper=self.helper, selector=self.function.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.function.item_title_selector()).do()
+        ClickAction(helper=self.helper, selector=self.selectors.create_page_create_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
 
 
     def validate_item(self):
         self.goto_function_page()
 
-        EnsureAction(helper=self.helper, selector=self.function.item_title_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
 
 
     def cleanup_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.function.item_title_selector()).do()
+        ClickAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
         ClickAction(helper=self.helper, selector=CssSelector('span[translate="dp.menu_options.delete"]')).do()
         ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()

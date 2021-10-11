@@ -59,8 +59,8 @@ class SelectAction(Action):
         self.item_selector = item_selector
 
     def _do(self):
-        self.helper.click_element_selector(self.selector)
-        self.helper.click_element_selector(self.item_selector)
+        self.helper.click_element_selector(selector=self.selector)
+        self.helper.click_element_selector(selector=self.item_selector)
 
 
 class TypeInTextboxAction(Action):

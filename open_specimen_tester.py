@@ -166,25 +166,26 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
 
 
 class OpenSpecimenTester():
-    def __init__(self, helper, function=None):
+    def __init__(self, helper, selectors=None, outputs=None):
         self.helper = helper
-        self.function = function
+        self.selectors = selectors
+        self.outputs = outputs
 
     def object_name(self):
-        if self.function:
-            return self.function.object_name()
+        if self.selectors:
+            return self.selectors.object_name()
         else:
             raise NotImplementedError()
 
     def function_page_url(self):
-        if self.function:
-            return self.function.function_page_url()
+        if self.selectors:
+            return self.selectors.function_page_url()
         else:
             raise NotImplementedError()
 
     def item_page_loaded_css_selector(self):
-        if self.function:
-            return self.function.item_page_loaded_css_selector()
+        if self.selectors:
+            return self.selectors.item_page_loaded_css_selector()
         else:
             raise NotImplementedError()
 

@@ -1,7 +1,18 @@
 from selenium_test_helper import CssSelector, XpathSelector
 
 
-class RoleFunction:
+def selectors(version):
+    return Selectors_v5_0()
+
+
+def outputs(version):
+    return Outputs_v5_0()
+
+
+class Outputs_v5_0:
+    pass
+
+class Selectors_v5_0:
     def object_name(self):
         return 'role'
 

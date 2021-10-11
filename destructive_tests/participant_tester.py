@@ -1,12 +1,12 @@
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, TypeInTextboxAction, XpathSelector
 from time import sleep
 from open_specimen_tester import OpenSpecimenDestructiveTester
-from function.participant import ParticipantFunction
+from function.participant import selectors, outputs
 
 
 class ParticipantStandardTester(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, ParticipantFunction())
+        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
 
         self.values = {
             'Participant Protocol ID': TypeInTextboxAction(
@@ -75,7 +75,7 @@ class ParticipantStandardTester(OpenSpecimenDestructiveTester):
 
 class ParticipantBrcTester(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, ParticipantFunction())
+        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
 
         self.values = {
             'Participant ID': TypeInTextboxAction(
@@ -125,8 +125,8 @@ class ParticipantBrcTester(OpenSpecimenDestructiveTester):
         for v in self.values.values():
             v.do()
 
-        ClickAction(helper=self.helper, selector=self.function.create_page_register_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.function.collect_samples_page_loaded_selector()).do()
+        ClickAction(helper=self.helper, selector=self.selectors.create_page_register_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.selectors.collect_samples_page_loaded_selector()).do()
 
 
     def validate_item(self):

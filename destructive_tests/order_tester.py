@@ -1,12 +1,11 @@
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.order import OrderFunction
-from selenium.webdriver.common.by import By
+from function.order import selectors, outputs
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
 class OrderTester(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, OrderFunction())
+        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
 
         self.values = {
             'Sites': SelectAction(
@@ -23,8 +22,8 @@ class OrderTester(OpenSpecimenDestructiveTester):
         
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.function.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.function.create_page_loaded_selector()).do()
+        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
+        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
 
         for v in self.values.values():
             v.do()

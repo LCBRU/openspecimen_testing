@@ -1,108 +1,107 @@
-from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.collection_protocol import CollectionProtocolFunction
+from selenium_test_helper import ClickAction, CssSelector, EnsureAction, XpathSelector
 from time import sleep
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
-class CollectionProtocolTester(OpenSpecimenDestructiveTester):
-    def __init__(self, helper):
-        super().__init__(helper, CollectionProtocolFunction())
+def get_collection_protocol_tester(helper):
+    if helper.version >= '5.1':
+        return CollectionProtocolTester_v5_1(helper)
+    else:
+        return CollectionProtocolTester_v5_0(helper)
 
-        self.values = {
-            'Sites': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('input[placeholder="Sites"]'),
-                item_selector=XpathSelector('//span[text()="Glenfield Hospital"]'),
-            ),
-            'Title': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Title"]'),
-                text='Frederick',
-            ),
-            'Short Title': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Short Title"]'),
-                text='Fred',
-            ),
-            'PI': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Principal Investigator"]'),
-                item_selector=XpathSelector('//span[text()="Adlam, Dave"]'),
-            ),
-            'PC': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Protocol Coordinators"]'),
-                item_selector=XpathSelector('//span[text()="Abanto, Camille"]'),
-            ),
-            'Start Date': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Start Date"]'),
-                text='01-01-2020',
-            ),
-            'End Date': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="End Date"]'),
-                text='01-01-2030',
-            ),
-            'Ethics ID': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Ethics ID"]'),
-                text='FR1-1',
-            ),
-            'Type': ClickAction(
-                helper=self.helper,
-                selector=CssSelector('span[translate="cp.participant_centric"]'),
-            ),
-            'Participant Count': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Anticipated Participants Count"]'),
-                text='12345',
-            ),
-        }
+
+class CollectionProtocolTester_v5_0(OpenSpecimenDestructiveTester):
+    def __init__(self, helper):
+        super().__init__(helper)
+
+    def object_name(self):
+        return 'collection_protocol'
+
+    def function_page_url(self):
+        return 'cps'
+
+    def export_link_css_selector(self):
+        return 'td:nth-of-type(2) a[ui-sref="cp-summary-view({cpId: cp.id})"]'
+
+    def item_page_loaded_css_selector(self):
+        return 'span[translate="cp.view_specimens"]'
 
     def create_item(self):
-        self.create_collection_protocol()
-
-
-    def create_collection_protocol(self):
         self.goto_function_page()
 
         sleep(15)
 
-        ClickAction(helper=self.helper, selector=self.function.create_button_selector()).do()
+        self.helper.click_element_selector(CssSelector('button[title="Click to add new Collection Protocol"]'))
 
         sleep(1)
 
-        ClickAction(helper=self.helper, selector=self.function.create_link_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.function.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(CssSelector('a > span[translate="common.buttons.create"]'))
+        self.helper.get_element_selector(CssSelector('span[translate="cp.create_cp_title"]'))
 
-        for v in self.values.values():
-            v.do()
+        self.helper.click_element_selector(CssSelector('input[placeholder="Sites"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Glenfield Hospital"]'))
 
-        ClickAction(helper=self.helper, selector=self.function.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.function.item_title_selector()).do()
+        self.helper.type_in_textbox_selector(CssSelector('input[placeholder="Title"]'), 'Frederick')
+        self.helper.type_in_textbox_selector(CssSelector('input[placeholder="Short Title"]'), 'Fred')
 
+        self.helper.click_element_selector(CssSelector('div[placeholder="Principal Investigator"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Adlam, Dave"]'))
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+
+        self.helper.get_element_selector(XpathSelector('//span[text()="Fred"]'))
 
     def validate_item(self):
         self.goto_function_page()
 
-        sleep(15)
+        sleep(5)
 
-        EnsureAction(helper=self.helper, selector=self.function.item_title_selector()).do()
-
+        self.helper.get_element_selector(XpathSelector('//span[text()="Fred"]'))
 
     def cleanup_item(self):
-        self.goto_collection_protocol()
+        self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="cp.menu_options.delete"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()
+        sleep(5)
+
+        self.helper.click_element_selector(XpathSelector('//span[text()="Fred"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.more"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="cp.view_details"]'))
+
+        self.helper.click_element_selector(CssSelector('span[translate="cp.menu_options.delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
 
 
-    def goto_collection_protocol(self):
+class CollectionProtocolTester_v5_1(CollectionProtocolTester_v5_0):
+    def create_item(self):
         self.goto_function_page()
 
         sleep(15)
 
-        ClickAction(helper=self.helper, selector=self.function.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.more"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="cp.view_details"]')).do()
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+        self.helper.get_element_selector(CssSelector('span[translate="cp.create_cp_title"]'))
+
+        self.helper.click_element_selector(CssSelector('input[ng-model="$select.search"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Glenfield Hospital"]'))
+
+        self.helper.type_in_textbox_selector(CssSelector('input[ng-model="cp.title"]'), 'Frederick')
+        self.helper.type_in_textbox_selector(CssSelector('input[ng-model="cp.shortTitle"]'), 'Fred')
+
+        self.helper.click_element_selector(CssSelector('div[placeholder="Principal Investigator"] > div > div > span'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Abi Al-Hussaini"]'))
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+
+        self.helper.get_element_selector(XpathSelector('//span[text()="Fred"]'))
+
+    def cleanup_item(self):
+        self.goto_function_page()
+
+        sleep(5)
+
+        self.helper.click_element_selector(XpathSelector('//span[text()="Fred"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.more"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="cp.view_details"]'))
+
+        self.helper.click_element_selector(CssSelector('span[translate="cp.menu_options.delete"]'))
+        self.helper.type_in_textbox_selector(CssSelector('textarea[ng-model="entityProps.reason"]'), 'Order of magnitude')
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))

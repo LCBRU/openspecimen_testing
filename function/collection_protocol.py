@@ -1,13 +1,27 @@
 from selenium_test_helper import CssSelector, XpathSelector
 
 
-class CollectionProtocolFunction:
+def selectors(version):
+    if version >= '5.1':
+        return Selectors_v5_1()
+    else:
+        return Selectors_v5_0()
+
+
+def outputs(version):
+    return Outputs_v5_0()
+
+
+class Outputs_v5_0:
     VERSION_SPECIMEN_REQUIREMENTS_COLUMNS = {
         '5.1': ["Name", "Type"],
     }
     VERSION_EVENTS_COLUMNS = {
         '5.1': [],
     }
+
+
+class Selectors_v5_0:
 
     def object_name(self):
         return 'collection_protocol'
@@ -35,3 +49,50 @@ class CollectionProtocolFunction:
 
     def item_title_selector(self):
         return XpathSelector('//span[text()="Fred"]')
+
+    def sites_field(self):
+        return CssSelector('input[placeholder="Sites"]')
+
+    def sites_item(self):
+        return XpathSelector('//span[text()="Glenfield Hospital"]')
+
+    def title_field(self):
+        return CssSelector('input[placeholder="Title"]')
+
+    def short_title_field(self):
+        return CssSelector('input[placeholder="Short Title"]')
+
+    def pi_field(self):
+        return CssSelector('div[placeholder="Principal Investigator"]')
+
+    def pi_value(self):
+        return XpathSelector('//span[text()="Adlam, Dave"]')
+
+
+class Selectors_v5_1(Selectors_v5_0):
+    def create_button_selector(self):
+        return CssSelector('span[translate="common.buttons.import"]')
+
+    def create_link_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def sites_field(self):
+        return CssSelector('input[ng-model="$select.search"]')
+
+    def title_field(self):
+        return CssSelector('input[ng-model="cp.title"]')
+
+    def short_title_field(self):
+        return CssSelector('input[ng-model="cp.shortTitle"]')
+
+    def pi_field(self):
+        return CssSelector('div[placeholder="Principal Investigator"] > div > div > span')
+
+    def pi_value(self):
+        return XpathSelector('//span[text()="Abi Al-Hussaini"]')
+
+    def pc_field(self):
+        return CssSelector('div[placeholder="Protocol Coordinators"]')
+
+    def pc_value(self):
+        return XpathSelector('//span[text()="Abi Al-Hussaini"]')

@@ -1,10 +1,24 @@
-from selenium_test_helper import CssSelector
+from selenium_test_helper import CssSelector, SelectAction, XpathSelector
 
 
-class CartFunction:
+def selectors(version):
+    if version > '5.0':
+        return Selectors_v5_1()
+    else:
+        return Selectors_v5_0()
+
+
+def outputs(version):
+    return Outputs_v5_0()
+
+
+class Outputs_v5_0:
     VERSION_COLUMNS = {
         '5.0': ['Label', 'Type', 'Anatomic Site', 'Collection Protocol', 'Quantity', 'Lineage'],
     }
+
+
+class Selectors_v5_0:
 
     def object_name(self):
         return 'cart'
@@ -29,3 +43,36 @@ class CartFunction:
 
     def item_title_selector(self):
         return CssSelector('span[title="Fred"]')
+
+    def edit_name_field_selector(self):
+        return CssSelector('input[ng-model="list.name"]')
+
+    def edit_user_field_selector(self):
+        return CssSelector('input[placeholder="Users"]')
+
+    def edit_user_item_selector(self):
+        return XpathSelector('//span[text()="Bramley, Richard"]')
+
+    def edit_description_field_selector(self):
+        return CssSelector('textarea[ng-model="list.description"]')
+
+    def edit_specimens_field_selector(self):
+        return CssSelector('textarea[ng-model="input.labelText"]')
+
+    def function_more_selector(self):
+        return CssSelector('span[translate="common.buttons.more"]')
+
+    def function_edit_selector(self):
+        return CssSelector('span[translate="specimen_list.edit_or_delete"]')
+
+    def function_delete_selector(self):
+        return CssSelector('span[translate="common.buttons.delete"]')
+
+    def function_yes_selector(self):
+        return CssSelector('span[translate="common.yes"]')
+
+
+class Selectors_v5_1(Selectors_v5_0):
+    def edit_user_item_selector(self):
+        return XpathSelector('//span[text()="Andre Ng"]')
+
