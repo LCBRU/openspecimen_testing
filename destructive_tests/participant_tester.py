@@ -1,20 +1,28 @@
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, TypeInTextboxAction, XpathSelector
 from time import sleep
 from open_specimen_tester import OpenSpecimenDestructiveTester
-from function.participant import selectors, outputs
 
 
-class ParticipantStandardTester(OpenSpecimenDestructiveTester):
+def get_participant_standard_tester(helper):
+    if helper.version >= '5.1':
+        return ParticipantStandardTester_v5_1(helper)
+    else:
+        return ParticipantStandardTester_v5_0(helper)
+
+
+def get_participant_brc_tester(helper):
+    if helper.version >= '5.1':
+        return ParticipantBrcTester_v5_1(helper)
+    else:
+        return ParticipantBrcTester_v5_0(helper)
+
+
+class ParticipantStandardTester_v5_0(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+        super().__init__(helper)
 
-        self.values = {
-            'Participant Protocol ID': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Participant Protocol ID"]'),
-                text='Fred',
-            ),
-        }
+    def function_page_url(self):
+        return 'cps'
 
     def item_title_selector(self):
         return XpathSelector('//span[normalize-space(text())="Fred"]')
@@ -32,21 +40,17 @@ class ParticipantStandardTester(OpenSpecimenDestructiveTester):
         return XpathSelector('//span[text()="CHINOOK"]')
 
     def create_item(self):
-        self.create_participant()
-
-    def create_participant(self):
         self.goto_collection_protocol()
 
         sleep(15)
 
-        ClickAction(helper=self.helper, selector=self.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(self.create_button_selector())
+        self.helper.get_element_selector(self.create_page_loaded_selector())
 
-        for v in self.values.values():
-            v.do()
+        self.helper.type_in_textbox_selector(CssSelector('input[placeholder="Participant Protocol ID"]'), 'Fred')
 
-        ClickAction(helper=self.helper, selector=self.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.item_title_selector()).do()
+        self.helper.click_element_selector(self.create_page_create_selector())
+        self.helper.get_element_selector(self.item_title_selector())
 
 
     def validate_item(self):
@@ -54,15 +58,16 @@ class ParticipantStandardTester(OpenSpecimenDestructiveTester):
 
         sleep(15)
 
-        EnsureAction(helper=self.helper, selector=self.item_title_selector()).do()
+        self.helper.get_element_selector(self.item_title_selector())
 
 
     def cleanup_item(self):
         self.goto_collection_protocol()
 
-        ClickAction(helper=self.helper, selector=self.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.delete"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()
+        self.helper.click_element_selector(self.item_title_selector())
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
 
 
     def goto_collection_protocol(self):
@@ -70,30 +75,26 @@ class ParticipantStandardTester(OpenSpecimenDestructiveTester):
 
         sleep(15)
 
-        ClickAction(helper=self.helper, selector=self.cp_title_selector()).do()
+        self.helper.click_element_selector(self.cp_title_selector())
 
 
-class ParticipantBrcTester(OpenSpecimenDestructiveTester):
+class ParticipantStandardTester_v5_1(ParticipantStandardTester_v5_0):
+    def cleanup_item(self):
+        self.goto_collection_protocol()
+
+        self.helper.click_element_selector(self.item_title_selector())
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.type_in_textbox_selector(CssSelector('textarea[ng-model="entityProps.reason"]'), 'Tiny creepy monsters')
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
+
+
+class ParticipantBrcTester_v5_0(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+        super().__init__(helper)
 
-        self.values = {
-            'Participant ID': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[name="empi"]'),
-                text='Fred',
-            ),
-            'Participant Protocol ID': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[name="ppid"]'),
-                text='Bav99999',
-            ),
-            'Registration Date': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[name="regDate"]'),
-                text='01 Aug 2020',
-            ),
-        }
+    def function_page_url(self):
+        return 'cps'
 
     def item_title_selector(self):
         return XpathSelector('//span[normalize-space(text())="Bav99999"]')
@@ -118,36 +119,46 @@ class ParticipantBrcTester(OpenSpecimenDestructiveTester):
 
         sleep(15)
 
-        ClickAction(helper=self.helper, selector=self.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.create_page_loaded_selector()).do()
-        ClickAction(helper=self.helper, selector=self.create_page_create_selector()).do()
+        self.helper.click_element_selector(self.create_button_selector())
+        self.helper.get_element_selector(self.create_page_loaded_selector())
+        self.helper.click_element_selector(self.create_page_create_selector())
 
-        for v in self.values.values():
-            v.do()
+        self.helper.type_in_textbox_selector(CssSelector('input[name="empi"]'), 'Fred')
+        self.helper.type_in_textbox_selector(CssSelector('input[name="ppid"]'), 'Bav99999')
+        self.helper.type_in_textbox_selector(CssSelector('input[name="regDate"]'), '01 Aug 2020')
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_page_register_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.collect_samples_page_loaded_selector()).do()
-
+        self.helper.click_element_selector(XpathSelector('//span[text()="Register"]'))
+        self.helper.get_element_selector(XpathSelector('//h3[text()="Collect Primary Specimens"]'))
 
     def validate_item(self):
         self.goto_collection_protocol()
 
         sleep(15)
 
-        EnsureAction(helper=self.helper, selector=self.item_title_selector()).do()
-
+        self.helper.get_element_selector(self.item_title_selector())
 
     def cleanup_item(self):
         self.goto_collection_protocol()
 
-        ClickAction(helper=self.helper, selector=self.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.delete"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()
-
+        self.helper.click_element_selector(self.item_title_selector())
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
 
     def goto_collection_protocol(self):
         self.goto_function_page()
 
         sleep(15)
 
-        ClickAction(helper=self.helper, selector=self.cp_title_selector()).do()
+        self.helper.click_element_selector(self.cp_title_selector())
+
+
+class ParticipantBrcTester_v5_1(ParticipantBrcTester_v5_0):
+    def cleanup_item(self):
+        self.goto_collection_protocol()
+
+        self.helper.click_element_selector(self.item_title_selector())
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.type_in_textbox_selector(CssSelector('textarea[ng-model="entityProps.reason"]'), 'Tiny creepy monsters')
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
+

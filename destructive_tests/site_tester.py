@@ -1,52 +1,56 @@
-from function.site import selectors, outputs
 from open_specimen_tester import OpenSpecimenDestructiveTester
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
 
 
-class SiteTester(OpenSpecimenDestructiveTester):
-    def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+def get_site_tester(helper):
+    return SiteTester_v5_0(helper)
 
-        self.values = {
-            'PI': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Institute"]'),
-                item_selector=XpathSelector('//span[text()="University of Leicester"]'),
-            ),
-            'Name': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Name"]'),
-                text='Fred',
-            ),
-            'Type': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Type"]'),
-                item_selector=XpathSelector('//span[text()="Collection Site"]'),
-            ),
-        }
+
+class SiteTester_v5_0(OpenSpecimenDestructiveTester):
+    def __init__(self, helper):
+        super().__init__(helper)
+
+    def function_page_url(self):
+        return 'sites'
+
+    def create_button_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def create_page_loaded_selector(self):
+        return CssSelector('button[translate="common.buttons.discard"]')
+
+    def create_page_create_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def item_title_selector(self):
+        return XpathSelector('//span[normalize-space(text())="Fred"]')
 
     def create_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(self.create_button_selector())
+        self.helper.get_element_selector(self.create_page_loaded_selector())
 
-        for v in self.values.values():
-            v.do()
+        self.helper.click_element_selector(CssSelector('div[placeholder="Institute"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="University of Leicester"]'))
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=XpathSelector('//h3[normalize-space(text())="Fred"]')).do()
+        self.helper.type_in_textbox_selector(CssSelector('input[name="siteName"]'), 'Fred')
 
+        self.helper.click_element_selector(CssSelector('div[placeholder="Type"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Collection Site"]'))
+
+        self.helper.click_element_selector(self.create_page_create_selector())
+        self.helper.get_element_selector(XpathSelector('//h3[normalize-space(text())="Fred"]'))
 
     def validate_item(self):
         self.goto_function_page()
 
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
+        self.helper.get_element_selector(self.item_title_selector())
 
 
     def cleanup_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.delete"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()
+        self.helper.click_element_selector(self.item_title_selector())
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))

@@ -1,59 +1,61 @@
-from selenium_test_helper import ClickAction, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.cart import selectors, outputs
+from time import sleep
+from selenium_test_helper import CssSelector, XpathSelector
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
-class CartTester(OpenSpecimenDestructiveTester):
-    def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+def get_cart_tester(helper):
+    if helper.version >= '5.1':
+        return CartTester_v5_1(helper)
+    else:
+        return CartTester_v5_0(helper)
 
-        self.values = {
-            'Name': TypeInTextboxAction(
-                helper=self.helper,
-                selector=self.selectors.edit_name_field_selector(),
-                text='Fred',
-            ),
-            'Share': SelectAction(
-                helper=self.helper,
-                select_selector=self.selectors.edit_user_field_selector(),
-                item_selector=self.selectors.edit_user_item_selector(),
-            ),
-            'Description': TypeInTextboxAction(
-                helper=self.helper,
-                selector=self.selectors.edit_description_field_selector(),
-                text='Lorem Ipsum',
-            ),
-            'Specimens': TypeInTextboxAction(
-                helper=self.helper,
-                selector=self.selectors.edit_specimens_field_selector(),
-                text='241996102950120',
-            ),
-        }
+
+class CartTester_v5_0(OpenSpecimenDestructiveTester):
+    def __init__(self, helper):
+        super().__init__(helper)
+
+    def function_page_url(self):
+        return 'specimen-lists'
+
+    def edit_user_item_selector(self):
+        return XpathSelector('//span[text()="Bramley, Richard"]')
 
     def create_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+        self.helper.get_element_selector(CssSelector('span[translate="specimen_list.create_list"]'))
 
-        for v in self.values.values():
-            v.do()
+        self.helper.type_in_textbox_selector(CssSelector('input[ng-model="list.name"]'), text='Fred')
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
+        self.helper.click_element_selector(CssSelector('input[placeholder="Users"]'))
+        self.helper.click_element_selector(self.edit_user_item_selector())
+
+        self.helper.type_in_textbox_selector(CssSelector('textarea[ng-model="list.description"]'), text='Lorem Ipsum')
+
+        self.helper.type_in_textbox_selector(CssSelector('textarea[ng-model="input.labelText"]'), text='241996102950120')
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+        sleep(5)
+        self.helper.get_element_selector(CssSelector('span[title="Fred"]'))
 
 
     def validate_item(self):
         self.goto_function_page()
 
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
+        self.helper.get_element_selector(CssSelector('span[title="Fred"]'))
 
 
     def cleanup_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=self.selectors.function_more_selector()).do()
-        ClickAction(helper=self.helper, selector=self.selectors.function_edit_selector()).do()
-        ClickAction(helper=self.helper, selector=self.selectors.function_delete_selector()).do()
-        ClickAction(helper=self.helper, selector=self.selectors.function_yes_selector()).do()
+        self.helper.click_element_selector(CssSelector('span[title="Fred"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.more"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="specimen_list.edit_or_delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
+
+
+class CartTester_v5_1(CartTester_v5_0):
+    def edit_user_item_selector(self):
+        return XpathSelector('//span[text()="Andre Ng"]')

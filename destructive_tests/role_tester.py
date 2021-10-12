@@ -1,42 +1,41 @@
-from function.role import selectors, outputs
 from open_specimen_tester import OpenSpecimenDestructiveTester
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
 
 
-class RoleTester(OpenSpecimenDestructiveTester):
-    def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+def get_role_tester(helper):
+    return RoleTester_v5_0(helper)
 
-        self.values = {
-            'Title': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[ng-model="role.name"]'),
-                text='Fred',
-            ),
-            'Resource': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Resource"]'),
-                item_selector=XpathSelector('//span[text()="Orders"]'),
-            ),
-        }
+
+class RoleTester_v5_0(OpenSpecimenDestructiveTester):
+    def __init__(self, helper):
+        super().__init__(helper)
+
+    def function_page_url(self):
+        return 'roles'
+
+    def create_button_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def create_page_loaded_selector(self):
+        return CssSelector('button[translate="common.buttons.discard"]')
 
     def create_item(self):
         # No option to delete, so never save.
 
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(self.create_button_selector())
+        self.helper.get_element_selector(self.create_page_loaded_selector())
 
-        for v in self.values.values():
-            v.do()
+        self.helper.type_in_textbox_selector(CssSelector('input[ng-model="role.name"]'), 'Fred')
 
-        ClickAction(helper=self.helper, selector=CssSelector('button[translate="common.buttons.discard"]')).do()
+        self.helper.click_element_selector(CssSelector('div[placeholder="Resource"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Orders"]'))
 
+        self.helper.click_element_selector(CssSelector('button[translate="common.buttons.discard"]'))
 
     def validate_item(self):
         pass
-
 
     def cleanup_item(self):
         pass

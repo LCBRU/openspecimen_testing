@@ -1,52 +1,57 @@
-from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.container import selectors, outputs
+from selenium_test_helper import CssSelector, XpathSelector
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
-class ContainerTester(OpenSpecimenDestructiveTester):
-    def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+def get_container_tester(helper):
+    if helper.version >= '5.1':
+        return ContainerTester_v5_1(helper)
+    else:
+        return ContainerTester_v5_0(helper)
 
-        self.values = {
-            'Type': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Type"]'),
-                item_selector=XpathSelector('//span[text()="-20 Box"]'),
-            ),
-            'Name': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[placeholder="Name"]'),
-                text='Frederick',
-            ),
-            'Parent Site': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Site"]'),
-                item_selector=XpathSelector('//span[text()="Glenfield Hospital"]'),
-            ),
-        }
+
+class ContainerTester_v5_0(OpenSpecimenDestructiveTester):
+    def __init__(self, helper):
+        super().__init__(helper)
+
+    def function_page_url(self):
+        return 'containers'
+
+    def name_field_selector(self):
+        return CssSelector('input[placeholder="Name"]')
 
     def create_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+        self.helper.get_element_selector(CssSelector('span[translate="container.create_container"]'))
 
-        for v in self.values.values():
-            v.do()
+        self.helper.click_element_selector(CssSelector('div[placeholder="Type"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="-20 Box"]'))
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
+        self.helper.type_in_textbox_selector(self.name_field_selector(), 'Frederick')
+
+        self.helper.click_element_selector(CssSelector('div[placeholder="Site"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Glenfield Hospital"]'))
+
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
+        self.helper.get_element_selector(XpathSelector('//span[text()="Frederick"]'))
+
 
     def validate_item(self):
         self.goto_function_page()
 
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
+        self.helper.get_element_selector(XpathSelector('//span[text()="Frederick"]'))
 
     def cleanup_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=self.selectors.user_menu_item_selector()).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span.fa-eye')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.delete"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('button.btn-danger')).do()
+        self.helper.click_element_selector(XpathSelector('//span[text()="Frederick"]'))
+        self.helper.click_element_selector(CssSelector('span.fa-user'))
+        self.helper.click_element_selector(CssSelector('span.fa-eye'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.delete"]'))
+        self.helper.click_element_selector(CssSelector('button.btn-danger'))
+
+
+class ContainerTester_v5_1(ContainerTester_v5_0):
+    def name_field_selector(self):
+        return CssSelector('input[name="name"]')

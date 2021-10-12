@@ -1,19 +1,23 @@
 from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.order import selectors, outputs
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
-class OrderTester(OpenSpecimenDestructiveTester):
-    def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+def get_order_tester(helper):
+    return OrderTester_v5_0(helper)
 
-        self.values = {
-            'Sites': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Distribution Protocol"]'),
-                item_selector=XpathSelector('//span[text()="BRAVE DNA"]'),
-            ),
-        }
+
+class OrderTester_v5_0(OpenSpecimenDestructiveTester):
+    def __init__(self, helper):
+        super().__init__(helper)
+
+    def function_page_url(self):
+        return 'orders'
+
+    def create_button_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def create_page_loaded_selector(self):
+        return CssSelector('span[translate="common.buttons.cancel"]')
 
     def create_item(self):
         # It seems impossible to create an order and then
@@ -22,14 +26,13 @@ class OrderTester(OpenSpecimenDestructiveTester):
         
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(self.create_button_selector())
+        self.helper.get_element_selector(self.create_page_loaded_selector())
 
-        for v in self.values.values():
-            v.do()
+        self.helper.click_element_selector(CssSelector('div[placeholder="Distribution Protocol"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="BRAVE DNA"]'))
 
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.buttons.cancel"]')).do()
-
+        self.helper.click_element_selector(CssSelector('span[translate="common.buttons.cancel"]'))
 
     def validate_item(self):
         pass

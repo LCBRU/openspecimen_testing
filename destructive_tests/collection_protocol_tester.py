@@ -14,17 +14,8 @@ class CollectionProtocolTester_v5_0(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
         super().__init__(helper)
 
-    def object_name(self):
-        return 'collection_protocol'
-
     def function_page_url(self):
         return 'cps'
-
-    def export_link_css_selector(self):
-        return 'td:nth-of-type(2) a[ui-sref="cp-summary-view({cpId: cp.id})"]'
-
-    def item_page_loaded_css_selector(self):
-        return 'span[translate="cp.view_specimens"]'
 
     def create_item(self):
         self.goto_function_page()

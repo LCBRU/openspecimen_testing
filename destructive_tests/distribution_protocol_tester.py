@@ -1,63 +1,70 @@
-from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectAction, TypeInTextboxAction, XpathSelector
-from function.distribution_protocol import selectors, outputs
+from selenium_test_helper import CssSelector, XpathSelector
 from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
-class DistricutionProtocolTester(OpenSpecimenDestructiveTester):
+def get_distribution_protocol_tester(helper):
+    if helper.version >= '5.1':
+        return DistricutionProtocolTester_v5_1(helper)
+    else:
+        return DistricutionProtocolTester_v5_0(helper)
+
+
+class DistricutionProtocolTester_v5_0(OpenSpecimenDestructiveTester):
     def __init__(self, helper):
-        super().__init__(helper, selectors(helper.version), outputs(helper.compare_version))
+        super().__init__(helper)
 
+    def function_page_url(self):
+        return 'dps'
 
-        self.values = {
-            'Title': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[ng-model="distributionProtocol.title"]'),
-                text='Distro',
-            ),
-            'Short Title': TypeInTextboxAction(
-                helper=self.helper,
-                selector=CssSelector('input[ng-model="distributionProtocol.shortTitle"]'),
-                text='Diso',
-            ),
-            'Receiving Institute': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Receiving Institute"]'),
-                item_selector=XpathSelector('//span[text()="University of Leicester"]'),
-            ),
-            'Principal Investigator': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Principal Investigator"]'),
-                item_selector=XpathSelector('//span[normalize-space(text())="Arnold, Ranjit"]'),
-            ),
-            'Institute': SelectAction(
-                helper=self.helper,
-                select_selector=CssSelector('div[placeholder="Institute"]'),
-                item_selector=XpathSelector('//span[text()="Kettering General Hospital"]'),
-            ),
-        }
+    def create_button_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def create_page_loaded_selector(self):
+        return CssSelector('span[translate="dp.create_dp_title"]')
+
+    def create_page_create_selector(self):
+        return CssSelector('span[translate="common.buttons.create"]')
+
+    def item_title_selector(self):
+        return XpathSelector('//span[normalize-space(text())="Diso"]')
+
+    def pi_value_selector(self):
+        return XpathSelector('//span[normalize-space(text())="Arnold, Ranjit"]')
 
     def create_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_button_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.create_page_loaded_selector()).do()
+        self.helper.click_element_selector(self.create_button_selector())
+        self.helper.get_element_selector(self.create_page_loaded_selector())
 
-        for v in self.values.values():
-            v.do()
+        self.helper.type_in_textbox_selector(CssSelector('input[ng-model="distributionProtocol.title"]'), 'Distro')
+        self.helper.type_in_textbox_selector(CssSelector('input[ng-model="distributionProtocol.shortTitle"]'), 'Diso')
 
-        ClickAction(helper=self.helper, selector=self.selectors.create_page_create_selector()).do()
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
+        self.helper.click_element_selector(CssSelector('div[placeholder="Receiving Institute"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="University of Leicester"]'))
 
+        self.helper.click_element_selector(CssSelector('div[placeholder="Principal Investigator"]'))
+        self.helper.click_element_selector(self.pi_value_selector())
+
+        self.helper.click_element_selector(CssSelector('div[placeholder="Institute"]'))
+        self.helper.click_element_selector(XpathSelector('//span[text()="Kettering General Hospital"]'))
+
+        self.helper.click_element_selector(self.create_page_create_selector())
+        self.helper.get_element_selector(self.item_title_selector())
 
     def validate_item(self):
         self.goto_function_page()
 
-        EnsureAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
-
+        self.helper.get_element_selector(self.item_title_selector())
 
     def cleanup_item(self):
         self.goto_function_page()
 
-        ClickAction(helper=self.helper, selector=self.selectors.item_title_selector()).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="dp.menu_options.delete"]')).do()
-        ClickAction(helper=self.helper, selector=CssSelector('span[translate="common.yes"]')).do()
+        self.helper.click_element_selector(self.item_title_selector())
+        self.helper.click_element_selector(CssSelector('span[translate="dp.menu_options.delete"]'))
+        self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
+
+
+class DistricutionProtocolTester_v5_1(DistricutionProtocolTester_v5_0):
+    def pi_value_selector(self):
+        return XpathSelector('//span[text()="Abi Al-Hussaini"]')

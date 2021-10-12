@@ -1,18 +1,17 @@
-from destructive_tests.container_tester import ContainerTester
 import logging
 import os
 from open_specimen_tester import OpenSpecimenSeleniumTestHelper
-# from destructive_tests.cart_tester import CartTester
+from destructive_tests.cart_tester import get_cart_tester
 from destructive_tests.collection_protocol_tester import get_collection_protocol_tester
-# from destructive_tests.participant_tester import ParticipantStandardTester, ParticipantBrcTester
-# from destructive_tests.container_tester import ContainerTester
-# from destructive_tests.distribution_protocol_tester import DistricutionProtocolTester
-# from destructive_tests.institute_tester import InstituteTester
-# from destructive_tests.order_tester import OrderTester
-# from destructive_tests.query_tester import QueryTester
-# from destructive_tests.role_tester import RoleTester
-# from destructive_tests.site_tester import SiteTester
-# from destructive_tests.user_tester import UserTester
+from destructive_tests.container_tester import get_container_tester
+from destructive_tests.participant_tester import get_participant_standard_tester, get_participant_brc_tester
+from destructive_tests.distribution_protocol_tester import get_distribution_protocol_tester
+from destructive_tests.institute_tester import get_institute_tester
+from destructive_tests.order_tester import get_order_tester
+from destructive_tests.query_tester import get_query_tester
+from destructive_tests.role_tester import get_role_tester
+from destructive_tests.site_tester import get_site_tester
+from destructive_tests.user_tester import get_user_tester
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -44,18 +43,18 @@ started = datetime.now()
 h.login()
 
 testers = [
-    # CartTester(h),
+    get_cart_tester(h),
     get_collection_protocol_tester(h),
-    # ContainerTester(h),
-    # ParticipantStandardTester(h),
-    # ParticipantBrcTester(h),
-    # DistricutionProtocolTester(h),
-    # InstituteTester(h),
-    # OrderTester(h),
-    # QueryTester(h),
-    # RoleTester(h),
-    # SiteTester(h),
-    # UserTester(h),
+    get_container_tester(h),
+    get_participant_standard_tester(h),
+    get_participant_brc_tester(h),
+    get_distribution_protocol_tester(h),
+    get_institute_tester(h),
+    get_order_tester(h),
+    get_query_tester(h),
+    get_role_tester(h),
+    get_site_tester(h),
+    get_user_tester(h),
 ]
 
 for t in testers:
