@@ -1,5 +1,6 @@
 import logging
 import os
+from time import sleep
 from open_specimen_tester import OpenSpecimenSeleniumTestHelper
 from destructive_tests.cart_tester import get_cart_tester
 from destructive_tests.collection_protocol_tester import get_collection_protocol_tester
@@ -14,6 +15,8 @@ from destructive_tests.site_tester import get_site_tester
 from destructive_tests.user_tester import get_user_tester
 from dotenv import load_dotenv
 from datetime import datetime
+
+from selenium_test_helper import SeleniumTestHelper
 
 
 load_dotenv()
@@ -59,6 +62,7 @@ testers = [
 
 for t in testers:
     t.run()
+    sleep(1)
 
 h.close()
 
