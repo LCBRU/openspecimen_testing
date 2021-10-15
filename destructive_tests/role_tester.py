@@ -3,10 +3,16 @@ from selenium_test_helper import ClickAction, CssSelector, EnsureAction, SelectA
 
 
 def get_role_tester(helper):
-    return RoleTester_v5_0(helper)
+    if helper.version == '6.0':
+        return RoleTester_v6_0(helper)
+    else:
+        return RoleTester_v5_0(helper)
 
 
 class RoleTester_v5_0(OpenSpecimenDestructiveTester):
+    def resource_value_selector(self):
+        return XpathSelector('//span[text()="Orders"]')
+
     def __init__(self, helper):
         super().__init__(helper)
 
@@ -30,7 +36,7 @@ class RoleTester_v5_0(OpenSpecimenDestructiveTester):
         self.helper.type_in_textbox_selector(CssSelector('input[ng-model="role.name"]'), 'Fred')
 
         self.helper.click_element_selector(CssSelector('div[placeholder="Resource"]'))
-        self.helper.click_element_selector(XpathSelector('//span[text()="Orders"]'))
+        self.helper.click_element_selector(self.resource_value_selector())
 
         self.helper.click_element_selector(CssSelector('button[translate="common.buttons.discard"]'))
 
@@ -39,3 +45,9 @@ class RoleTester_v5_0(OpenSpecimenDestructiveTester):
 
     def cleanup_item(self):
         pass
+
+
+class RoleTester_v6_0(RoleTester_v5_0):
+    def resource_value_selector(self):
+        return XpathSelector('//span[@class="ng-binding ng-scope" and text()="Orders"]')
+

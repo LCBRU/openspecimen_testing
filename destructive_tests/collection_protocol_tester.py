@@ -4,7 +4,9 @@ from open_specimen_tester import OpenSpecimenDestructiveTester
 
 
 def get_collection_protocol_tester(helper):
-    if helper.version >= '5.1':
+    if helper.version >= '6.0':
+        return CollectionProtocolTester_v6_0(helper)
+    elif helper.version >= '5.1':
         return CollectionProtocolTester_v5_1(helper)
     else:
         return CollectionProtocolTester_v5_0(helper)
@@ -63,6 +65,9 @@ class CollectionProtocolTester_v5_0(OpenSpecimenDestructiveTester):
 
 
 class CollectionProtocolTester_v5_1(CollectionProtocolTester_v5_0):
+    def site_field_selector(self):
+        return CssSelector('input[ng-model="$select.search"]')
+
     def create_item(self):
         self.goto_function_page()
 
@@ -71,7 +76,9 @@ class CollectionProtocolTester_v5_1(CollectionProtocolTester_v5_0):
         self.helper.click_element_selector(CssSelector('span[translate="common.buttons.create"]'))
         self.helper.get_element_selector(CssSelector('span[translate="cp.create_cp_title"]'))
 
-        self.helper.click_element_selector(CssSelector('input[ng-model="$select.search"]'))
+        sleep(5)
+
+        self.helper.click_element_selector(self.site_field_selector())
         self.helper.click_element_selector(XpathSelector('//span[text()="Glenfield Hospital"]'))
 
         self.helper.type_in_textbox_selector(CssSelector('input[ng-model="cp.title"]'), 'Frederick')
@@ -96,3 +103,8 @@ class CollectionProtocolTester_v5_1(CollectionProtocolTester_v5_0):
         self.helper.click_element_selector(CssSelector('span[translate="cp.menu_options.delete"]'))
         self.helper.type_in_textbox_selector(CssSelector('textarea[ng-model="entityProps.reason"]'), 'Order of magnitude')
         self.helper.click_element_selector(CssSelector('span[translate="common.yes"]'))
+
+
+class CollectionProtocolTester_v6_0(CollectionProtocolTester_v5_1):
+    def site_field_selector(self):
+        return CssSelector('div[ng-model="cp.repositoryNames"]')

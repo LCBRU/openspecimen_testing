@@ -20,7 +20,8 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
 
     def item_page_loaded_css_selector(self):
         # return 'span[translate="container.assign_positions"]'
-        return 'span.slot-desc' # v5.1
+        # return 'span.slot-desc' # v5.1
+        return 'div.panel-body' # v5.2
 
     def visit_item(self, o):
         details = {}
