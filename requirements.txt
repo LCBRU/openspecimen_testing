@@ -4,3 +4,4 @@ sqlalchemy
 sympy
 jsonlines
 Werkzeug
+packaging

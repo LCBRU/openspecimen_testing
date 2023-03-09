@@ -41,8 +41,8 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
     def get_overview_details(self, columns=None):
         details = {}
 
-        for kvpair in self.driver.find_elements_by_css_selector('ul.os-key-values li'):
-            title = kvpair.find_element_by_tag_name('strong')
+        for kvpair in self.driver.find_elements(By.CSS_SELECTOR, 'ul.os-key-values li'):
+            title = kvpair.find_element(By.TAG_NAME, 'strong')
 
             values = kvpair.find_elements(By.CSS_SELECTOR, 'span, a')
             value = [x for x in sorted(values, key=lambda x: x.tag_name)][0]

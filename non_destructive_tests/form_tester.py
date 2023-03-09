@@ -20,7 +20,7 @@ class FormTester(OpenSpecimenNonDestructiveTester):
         self.goto_function_page()
         self.helper.get(dp['href'])
         sleep(1)
-        self.helper.driver.switch_to_frame(0)
+        self.helper.driver.switch_to.frame(0)
         self.helper.click_element('div[tab_id="previewTab"]', By.CSS_SELECTOR)
 
     def visit_item(self, o):

@@ -46,15 +46,15 @@ class SampleSpider:
         self.driver.implicitly_wait(IMPLICIT_WAIT_TIME)
         # self.driver.maximize_window()
         # self.driver.minimize_window();
-        self.base_url = os.environ["OS_URL_BASE"]
+        self.base_url = os.environ["BASE_URL"]
 
     def close(self):
         self.driver.close()
     
     def login(self):
         self.get('')
-        self.type_in_textbox('//input[@ng-model="loginData.loginName"]', By.XPATH, os.environ["OS_USERNAME"])
-        self.type_in_textbox('//input[@ng-model="loginData.password"]', By.XPATH, os.environ["OS_PASSWORD"])
+        self.type_in_textbox('//input[@ng-model="loginData.loginName"]', By.XPATH, os.environ["APP_USERNAME"])
+        self.type_in_textbox('//input[@ng-model="loginData.password"]', By.XPATH, os.environ["APP_PASSWORD"])
         self.click_element('span[translate="user.sign_in"', By.CSS_SELECTOR)
 
     def get(self, url):

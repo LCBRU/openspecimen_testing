@@ -28,17 +28,17 @@ logging.basicConfig(filename='errors.log', level=logging.ERROR)
 h = OpenSpecimenSeleniumTestHelper(
     download_directory=os.environ["DOWNLOAD_DIRECTORY"],
     output_directory=os.environ["OUTPUT_DIRECTORY"],
-    base_url=os.environ["OS_URL_BASE"],
+    base_url=os.environ["BASE_URL"],
     headless=False,
     implicit_wait_time=float(os.environ["IMPLICIT_WAIT_TIME"]),
     click_wait_time=float(os.environ["CLICK_WAIT_TIME"]),
     download_wait_time=float(os.environ["DOWNLOAD_WAIT_TIME"]),
     page_wait_time=float(os.environ["PAGE_WAIT_TIME"]),
-    username=os.environ["OS_USERNAME"],
-    password=os.environ["OS_PASSWORD"],
-    version=os.environ["OS_VERSION"],
+    username=os.environ["APP_USERNAME"],
+    password=os.environ["APP_PASSWORD"],
+    version=os.environ["VERSION"],
     sampling_type=os.environ["SAMPLING_TYPE"],
-    compare_version=os.environ["OS_COMPARE_VERSION"],
+    compare_version=os.environ["COMPARE_VERSION"],
 )
 
 started = datetime.now()
