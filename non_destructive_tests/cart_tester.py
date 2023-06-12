@@ -1,4 +1,4 @@
-from time import sleep
+from lbrc_selenium.selenium import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
@@ -14,10 +14,10 @@ class CartTester(OpenSpecimenNonDestructiveTester):
         return 'specimen-lists'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="specimen-list({listId: list.id})"]'
+        return CssSelector('a[ui-sref="specimen-list({listId: list.id})"]')
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="specimen_list.distribute_all"]'
+        return CssSelector('span[translate="specimen_list.distribute_all"]')
 
     def visit_item(self, x):
         details = x.copy()

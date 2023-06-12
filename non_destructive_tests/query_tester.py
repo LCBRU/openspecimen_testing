@@ -1,6 +1,5 @@
-import collections
+from lbrc_selenium.selenium import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
-from selenium.webdriver.common.by import By
 from time import sleep
 
 class QueryTester(OpenSpecimenNonDestructiveTester):
@@ -11,10 +10,10 @@ class QueryTester(OpenSpecimenNonDestructiveTester):
         return 'queries/list'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="query-results({queryId: query.id})"]'
+        return CssSelector('a[ui-sref="query-results({queryId: query.id})"]')
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="common.buttons.actions"]'
+        return CssSelector('span[translate="common.buttons.actions"]')
 
     def visit_item(self, x):
         details = {}
@@ -32,12 +31,12 @@ class QueryTester(OpenSpecimenNonDestructiveTester):
     def get_query_result_details(self):
         result = []
 
-        headers = [self.helper.get_text(h) for h in self.helper.get_elements('div.ngHeaderContainer div.ngHeaderCell tooltip-append-to-bod', By.CSS_SELECTOR)]
+        headers = [self.helper.get_text(h) for h in self.helper.get_elements(CssSelector('div.ngHeaderContainer div.ngHeaderCell tooltip-append-to-bod'))]
 
-        for row in self.helper.get_elements('div.ngRow', By.CSS_SELECTOR):
+        for row in self.helper.get_elements(CssSelector('div.ngRow')):
             details = {}
 
-            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'div.ngCell a, div.ngCell span')):
+            for i, cell in enumerate(self.helper.get_elements(CssSelector('div.ngCell a, div.ngCell span'), element=row)):
                 if cell.tag_name == 'a':
                     details[headers[i]] = {
                         'href': self.helper.get_href(cell),

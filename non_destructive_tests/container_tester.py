@@ -1,7 +1,5 @@
-from selenium_test_helper import CssSelector
+from lbrc_selenium.selenium import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
-from time import sleep
-from selenium.webdriver.common.by import By
 
 
 class ContainerTester(OpenSpecimenNonDestructiveTester):
@@ -16,12 +14,12 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
         return 'containers'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="container-detail.locations({containerId: container.id})"]'
+        return CssSelector('a[ui-sref="container-detail.locations({containerId: container.id})"]')
 
     def item_page_loaded_css_selector(self):
         # return 'span[translate="container.assign_positions"]'
         # return 'span.slot-desc' # v5.1
-        return 'div.panel-body' # v5.2
+        return CssSelector('div.panel-body') # v5.2
 
     def visit_item(self, o):
         details = {}
@@ -49,7 +47,7 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
     def get_container_children(self):
         result = []
 
-        for row in self.helper.get_elements('a[ng-click="selectContainer(container)"] span', By.CSS_SELECTOR):
+        for row in self.helper.get_elements(CssSelector('a[ng-click="selectContainer(container)"] span')):
             result.append(self.helper.get_text(row))
 
         return result
@@ -57,7 +55,7 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
     def get_container_slots(self):
         result = []
 
-        for slot in self.helper.get_elements('span.slot-desc', By.CSS_SELECTOR):
+        for slot in self.helper.get_elements(CssSelector('span.slot-desc')):
             result.append(self.helper.get_text(slot))
 
         return result

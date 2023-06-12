@@ -1,4 +1,4 @@
-from selenium_test_helper import CssSelector, XpathSelector
+from lbrc_selenium.selenium import CssSelector, XpathSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from time import sleep
 
@@ -18,10 +18,10 @@ class OrderTester(OpenSpecimenNonDestructiveTester):
         return 'orders'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="order-detail.overview({orderId: order.id})"]'
+        return CssSelector('a[ui-sref="order-detail.overview({orderId: order.id})"]')
 
     def item_page_loaded_css_selector(self):
-        return 'h3[translate="audit.activity"]'
+        return CssSelector('h3[translate="audit.activity"]')
 
     def visit_item(self, o):
         details = {}

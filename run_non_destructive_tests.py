@@ -1,8 +1,7 @@
 import logging
 import os
-import json
-from pathlib import Path
-from open_specimen_tester import OpenSpecimenSeleniumTestHelper
+from time import sleep
+from lbrc_selenium.selenium import CssSelector, get_selenium, XpathSelector
 from non_destructive_tests.site_tester import SiteTester
 from non_destructive_tests.user_tester import UserTester
 from non_destructive_tests.role_tester import RoleTester
@@ -17,6 +16,7 @@ from non_destructive_tests.collection_protocol_tester import CollectionProtocolT
 from non_destructive_tests.cart_tester import CartTester
 from dotenv import load_dotenv
 from datetime import datetime
+from open_specimen_tester import OpenSpecimenHelper
 
 
 load_dotenv()
@@ -24,25 +24,17 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
-h = OpenSpecimenSeleniumTestHelper(
-    download_directory=os.environ["DOWNLOAD_DIRECTORY"],
-    output_directory=os.environ["OUTPUT_DIRECTORY"],
-    base_url=os.environ["BASE_URL"],
-    headless=False,
-    implicit_wait_time=float(os.environ["IMPLICIT_WAIT_TIME"]),
-    click_wait_time=float(os.environ["CLICK_WAIT_TIME"]),
-    download_wait_time=float(os.environ["DOWNLOAD_WAIT_TIME"]),
-    page_wait_time=float(os.environ["PAGE_WAIT_TIME"]),
-    username=os.environ["APP_USERNAME"],
-    password=os.environ["APP_PASSWORD"],
-    version=os.environ["VERSION"],
-    sampling_type=os.environ["SAMPLING_TYPE"],
-    compare_version=os.environ["COMPARE_VERSION"],
-)
+
+
+def login(helper):
+    helper.get('')
+    helper.type_in_textbox(XpathSelector('//input[@ng-model="loginData.loginName"]'), os.environ["USERNAME"])
+    helper.type_in_textbox(XpathSelector('//input[@ng-model="loginData.password"]'), os.environ["PASSWORD"])
+    helper.click_element(CssSelector('span[translate="user.sign_in"]'))
 
 started = datetime.now()
 
-h.login()
+h = get_selenium(helper_class=OpenSpecimenHelper)
 
 testers = [
     SiteTester(h),
@@ -59,31 +51,13 @@ testers = [
     CartTester(h),
 ]
 
-PROGRESS_FILENAME = h.output_directory / 'progress.json'
+try:
+    login(h)
 
-if Path(PROGRESS_FILENAME).is_file():
-    with open(PROGRESS_FILENAME) as j:
-        progress = json.load(j)
-else:
-    progress = []
-
-for t in testers:
-    tester_name = type(t).__name__
-
-    if tester_name not in progress:
-        print(f'Processing {tester_name}')
-
+    for t in testers:
         t.run()
-
-        print(f'Completed {tester_name}')
-
-        progress.append(tester_name)
-
-        with open(PROGRESS_FILENAME, 'w') as j:
-            json.dump(progress, j)
-    else:
-        print(f'Skipping {tester_name}')
-
-h.close()
+        sleep(1)
+finally:
+    h.close()
 
 print(datetime.now() - started)

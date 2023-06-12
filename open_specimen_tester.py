@@ -1,29 +1,23 @@
 import logging
-import jsonlines
-import csv
-import collections
 from time import sleep
-from selenium_test_helper import SeleniumTestHelper
-from selenium.webdriver.common.by import By
 from werkzeug.utils import secure_filename
+from lbrc_selenium import ItemsFile
+import csv
+import jsonlines
+import collections
+from lbrc_selenium.selenium import CssSelector, SeleniumHelper, TagSelector
 
 
-class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
-    def login(self):
-        self.get('')
-        self.type_in_textbox('//input[@ng-model="loginData.loginName"]', By.XPATH, self._username)
-        self.type_in_textbox('//input[@ng-model="loginData.password"]', By.XPATH, self._password)
-        self.click_element('span[translate="user.sign_in"]', By.CSS_SELECTOR)
-
+class OpenSpecimenHelper(SeleniumHelper):
     def save_export(self, filename, in_more=False):
         sleep(1)
         if in_more:
-            self.click_element('span[translate="common.buttons.more"]', By.CSS_SELECTOR)
-            self.click_element('span[translate="cp.export"]', By.CSS_SELECTOR)
-            self.click_element('span[translate="common.buttons.export"]', By.CSS_SELECTOR)
-            self.click_element('span[translate="common.yes"]', By.CSS_SELECTOR)
+            self.click_element(CssSelector('span[translate="common.buttons.more"]'))
+            self.click_element(CssSelector('span[translate="cp.export"]'))
+            self.click_element(CssSelector('span[translate="common.buttons.export"]'))
+            self.click_element(CssSelector('span[translate="common.yes"]'))
         else:
-            self.click_element('span[translate="common.buttons.export"]', By.CSS_SELECTOR)
+            self.click_element(CssSelector('span[translate="common.buttons.export"]'))
 
         sleep(self.download_wait_time)
 
@@ -41,10 +35,10 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
     def get_overview_details(self, columns=None):
         details = {}
 
-        for kvpair in self.driver.find_elements(By.CSS_SELECTOR, 'ul.os-key-values li'):
-            title = kvpair.find_element(By.TAG_NAME, 'strong')
+        for kvpair in self.get_elements(CssSelector('ul.os-key-values li')):
+            title = self.get_element(TagSelector('strong'), element=kvpair)
 
-            values = kvpair.find_elements(By.CSS_SELECTOR, 'span, a')
+            values = self.get_elements(CssSelector('span, a'), element=kvpair)
             value = [x for x in sorted(values, key=lambda x: x.tag_name)][0]
 
             header = self.get_text(title)
@@ -63,13 +57,13 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
     def get_div_table_details(self, parent_element_css_selector='', columns=None):
         result = []
 
-        headers = [self.get_text(h) for h in self.get_elements(f'{parent_element_css_selector} div.os-table-head div.col span, div.os-table-head div.col', By.CSS_SELECTOR)]
+        headers = [self.get_text(h) for h in self.get_elements(CssSelector(f'{parent_element_css_selector} div.os-table-head div.col span, div.os-table-head div.col'))]
 
-        for row in self.get_elements(f'{parent_element_css_selector} div.os-table-body div.row', By.CSS_SELECTOR):
+        for row in self.get_elements(CssSelector(f'{parent_element_css_selector} div.os-table-body div.row')):
             details = {}
 
-            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'div.col')):
-                values = sorted(cell.find_elements(By.CSS_SELECTOR, 'span, a'), key=lambda x: x.tag_name)
+            for i, cell in enumerate(self.get_elements(CssSelector('div.col'), element=row)):
+                values = sorted(self.get_elements(CssSelector('span, a'), element=cell), key=lambda x: x.tag_name)
 
                 if len(values) > 0:
                     value = values[0]
@@ -97,12 +91,12 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
     def get_list_group_details(self, parent_element_css_selector='', columns=None):
         result = []
 
-        header = [self.get_text(h) for h in self.get_elements(f'{parent_element_css_selector} div.list-group .os-section-hdr', By.CSS_SELECTOR)][0]
+        header = [self.get_text(h) for h in self.get_elements(CssSelector(f'{parent_element_css_selector} div.list-group .os-section-hdr'))][0]
 
-        for cell in self.get_elements(f'{parent_element_css_selector} div.list-group .os-cpe-item .list-group-item', By.CSS_SELECTOR):
+        for cell in self.get_elements(CssSelector(f'{parent_element_css_selector} div.list-group .os-cpe-item .list-group-item')):
             details = {}
 
-            values = sorted(cell.find_elements(By.CSS_SELECTOR, 'span, a'), key=lambda x: x.tag_name)
+            values = sorted(self.get_elements(CssSelector('span, a'), element=cell), key=lambda x: x.tag_name)
 
             if len(values) > 0:
                 value = values[0]
@@ -125,18 +119,18 @@ class OpenSpecimenSeleniumTestHelper(SeleniumTestHelper):
     def get_table_details(self, columns=None, has_container=True):
         result = []
 
-        headers = [self.get_text(h) for h in self.get_elements('table.os-table thead .col span:first-of-type', By.CSS_SELECTOR)]
+        headers = [self.get_text(h) for h in self.get_elements(CssSelector('table.os-table thead .col span:first-of-type'))]
 
         if not columns:
             columns = headers
 
         container = '.container' if has_container else ''
 
-        for row in self.get_elements(f'{container} table.os-table tbody tr', By.CSS_SELECTOR):
+        for row in self.get_elements(CssSelector(f'{container} table.os-table tbody tr')):
             details = {}
 
-            for i, cell in enumerate(row.find_elements(By.CSS_SELECTOR, 'td')):
-                values = sorted(cell.find_elements(By.CSS_SELECTOR, 'span, a'), key=lambda x: x.tag_name)
+            for i, cell in enumerate(self.get_elements(CssSelector('td'), element=row)):
+                values = sorted(self.get_elements(CssSelector('span, a'), element=cell), key=lambda x: x.tag_name)
 
                 if len(values) > 0:
                     value = values[0]
@@ -196,19 +190,19 @@ class OpenSpecimenTester():
     def goto_item_page(self, o):
         self.goto_function_page()
         self.helper.get(o['href'])
-        self.helper.get_element(self.item_page_loaded_css_selector(), By.CSS_SELECTOR)
+        self.helper.get_element(self.item_page_loaded_css_selector())
         sleep(self.helper.page_wait_time)
 
     def goto_item_sub_page(self, o, page_name, selector, original='overview'):
         self.goto_function_page()
         self.helper.get(o['href'].replace(original, page_name))
-        self.helper.get_element(selector.query, selector.by)
+        self.helper.get_element(selector)
         sleep(self.helper.page_wait_time)
         
     def goto_item_custom_page(self, url, loaded_css_selector):
         self.goto_function_page()
         self.helper.get(url)
-        self.helper.get_element(loaded_css_selector, By.CSS_SELECTOR)
+        self.helper.get_element(loaded_css_selector)
         sleep(self.helper.page_wait_time)
         
 
@@ -228,38 +222,33 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
         self.goto_function_page()
         sleep(self.helper.page_wait_time)
 
-        existing = []
+        export_file = ItemsFile(self.helper.output_directory, self._export_filename())
 
-        with jsonlines.open(self.helper.output_directory / self._export_filename(), mode='w') as writer:
-            for x in self.helper.get_elements(self.export_link_css_selector(), By.CSS_SELECTOR):
-                href = self.helper.get_href(x)
+        for x in self.helper.get_elements(self.export_link_css_selector()):
+            href = self.helper.get_href(x)
 
-                if href.count("#") > 1:
-                    href = "#".join(href.split("#", 2)[:2])
+            if href.count("#") > 1:
+                href = "#".join(href.split("#", 2)[:2])
 
-                details = {
-                    'name': self.helper.get_text(x),
-                    'href': href,
-                }
-                if details not in existing:
-                    existing.append(details)
+            export_file.add_item(dict(
+                name=self.helper.get_text(x),
+                href=href,
+            ))
 
-            for i in sorted(existing, key=lambda i: i['name']):
-                writer.write(i)
+        export_file.save()
 
     def visit_items(self):
         logging.info(f'Visiting All {self.object_name()}s')
 
-        with jsonlines.open(self.helper.output_directory / self._details_filename(), mode='w') as writer:
-            with jsonlines.open(self.helper.output_directory / self._export_filename()) as reader:
-                for i, o in enumerate(reader):
-                    if self.helper.is_sampling_pick(i):
-                        logging.info(f'Processing Item: {o["name"]}')
+        export_file = ItemsFile(self.helper.output_directory, self._export_filename())
+        details_file = ItemsFile(self.helper.output_directory, self._details_filename(), sorted=False)
 
-                        dets = self.visit_item(o)
-                        writer.write(dets)
-                    else:
-                        logging.info(f'Skipping Item: {o["name"]}')
+        for o in export_file.get_sample_items():
+            logging.info(f'Processing Item: {o["name"]}')
+
+            details_file.add_item(self.visit_item(o))
+
+        details_file.save()
 
     def visit_item(self, o):
         details = {}

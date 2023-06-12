@@ -1,5 +1,5 @@
+from lbrc_selenium.selenium import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
-from selenium.webdriver.common.by import By
 from time import sleep
 
 
@@ -11,17 +11,17 @@ class FormTester(OpenSpecimenNonDestructiveTester):
         return 'forms'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="form-addedit({formId: form.formId})"]'
+        return CssSelector('a[ui-sref="form-addedit({formId: form.formId})"]')
 
     def item_page_loaded_css_selector(self):
-        return ''
+        return CssSelector('')
 
     def goto_preview(self, dp):
         self.goto_function_page()
         self.helper.get(dp['href'])
         sleep(1)
         self.helper.driver.switch_to.frame(0)
-        self.helper.click_element('div[tab_id="previewTab"]', By.CSS_SELECTOR)
+        self.helper.click_element(CssSelector('div[tab_id="previewTab"]'))
 
     def visit_item(self, o):
         details = {}
@@ -39,7 +39,7 @@ class FormTester(OpenSpecimenNonDestructiveTester):
     def get_form_preview(self):
         result = []
 
-        for row in self.helper.get_elements('div.form-group', By.CSS_SELECTOR):
+        for row in self.helper.get_elements(CssSelector('div.form-group')):
             details = {}
 
             details['control'] = self.helper.get_innerHtml(row)

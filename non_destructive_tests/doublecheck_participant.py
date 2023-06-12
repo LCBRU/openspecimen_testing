@@ -1,6 +1,4 @@
 import os
-import zipfile
-import csv
 import logging
 from time import sleep
 from selenium import webdriver
@@ -12,7 +10,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from urllib.parse import urljoin
 from dotenv import load_dotenv
 from pathlib import Path
-from model import init_database, CollectionProtocol, Participant, Sample
+from model import init_database, Participant
 
 
 load_dotenv()

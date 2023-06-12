@@ -1,3 +1,4 @@
+from lbrc_selenium.selenium import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
@@ -9,7 +10,7 @@ class InstituteTester(OpenSpecimenNonDestructiveTester):
         return 'institutes'
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="institute-detail.overview({instituteId: institute.id})"]'
+        return CssSelector('a[ui-sref="institute-detail.overview({instituteId: institute.id})"]')
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="common.buttons.edit"]'
+        return CssSelector('span[translate="common.buttons.edit"]')

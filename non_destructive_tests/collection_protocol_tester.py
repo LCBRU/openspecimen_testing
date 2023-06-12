@@ -1,5 +1,4 @@
-from selenium_test_helper import CssSelector
-from time import sleep
+from lbrc_selenium.selenium import CssSelector
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 
 
@@ -19,10 +18,10 @@ class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
         return 'cps'
 
     def export_link_css_selector(self):
-        return 'td:nth-of-type(2) a[ui-sref="cp-summary-view({cpId: cp.id})"]'
+        return CssSelector('td:nth-of-type(2) a[ui-sref="cp-summary-view({cpId: cp.id})"]')
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="cp.view_specimens"]'
+        return CssSelector('span[translate="cp.view_specimens"]')
 
     def visit_item(self, x):
         details = {}
@@ -30,14 +29,14 @@ class CollectionProtocolTester(OpenSpecimenNonDestructiveTester):
         # Overview
         overview_url = x['href'].replace('cp-view', 'cps').replace('summary-view', 'overview')
 
-        self.goto_item_custom_page(overview_url, 'span[translate="cp.menu_options.clone"]')
+        self.goto_item_custom_page(overview_url, CssSelector('span[translate="cp.menu_options.clone"]'))
 
         details['overview'] = self.helper.get_overview_details()
 
         # Events
         events_url = overview_url.replace('overview', 'specimen-requirements')
 
-        self.goto_item_custom_page(events_url, 'span[translate="cp.cpe_list"]')
+        self.goto_item_custom_page(events_url, CssSelector('span[translate="cp.cpe_list"]'))
 
         details['events'] = self.helper.get_list_group_details(parent_element_css_selector='div.col-xs-3', columns=self.VERSION_SPECIMEN_REQUIREMENTS_COLUMNS.get(self.helper.compare_version, None))
         details['specimens requirements'] = self.helper.get_div_table_details(parent_element_css_selector='div.col-xs-9', columns=self.VERSION_SPECIMEN_REQUIREMENTS_COLUMNS.get(self.helper.compare_version, None))
@@ -71,10 +70,10 @@ class CollectionProtocolParticipantTester(OpenSpecimenNonDestructiveTester):
         return self.cp_url
 
     def export_link_css_selector(self):
-        return 'a[ui-sref="participant-detail.overview({cprId: row.hidden.cprId})"]'
+        return CssSelector('a[ui-sref="participant-detail.overview({cprId: row.hidden.cprId})"]')
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="participant.buttons.anonymize"]'
+        return CssSelector('span[translate="participant.buttons.anonymize"]')
 
     def visit_item(self, x):
         details = {}
@@ -116,10 +115,10 @@ class CollectionProtocolParticipantSampleTester(OpenSpecimenNonDestructiveTester
         return self.participant_url
 
     def export_link_css_selector(self):
-        return 'a[ui-sref^="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId"]'
+        return CssSelector('a[ui-sref^="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId"]')
 
     def item_page_loaded_css_selector(self):
-        return 'span[translate="common.buttons.hide_activity"]'
+        return CssSelector('span[translate="common.buttons.hide_activity"]')
 
     def visit_item(self, x):
         details = {}
