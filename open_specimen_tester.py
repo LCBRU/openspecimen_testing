@@ -4,8 +4,7 @@ from werkzeug.utils import secure_filename
 from lbrc_selenium import ItemsFile
 import csv
 import jsonlines
-import collections
-from lbrc_selenium.selenium import CssSelector, SeleniumHelper, TagSelector
+from lbrc_selenium.selenium import CssSelector, SeleniumHelper, TagSelector, VersionTranslator, KeyValuePairScrubber, TableScrubber
 
 
 class OpenSpecimenHelper(SeleniumHelper):
@@ -32,13 +31,27 @@ class OpenSpecimenHelper(SeleniumHelper):
         
         self.clear_download_directory()
 
-    def get_overview_details(self, columns=None):
+    def get_href(self, item):
+        href = super().get_href(item)
+        if href.count('#') < 1:
+            return href
+        else:
+            return href.split("#")[1]
+
+    def get_overview_details(self, columns=None, version_comparator: VersionTranslator=None):
+        if not version_comparator:
+            version_comparator = VersionTranslator()
+
+        VERSION_VALUE_SELECTOR = {
+            '5.0': CssSelector('span, a'),
+            '10.0': CssSelector('span.value, a.value'),
+        }
         details = {}
 
         for kvpair in self.get_elements(CssSelector('ul.os-key-values li')):
             title = self.get_element(TagSelector('strong'), element=kvpair)
 
-            values = self.get_elements(CssSelector('span, a'), element=kvpair)
+            values = self.get_elements(self.get_version_item(VERSION_VALUE_SELECTOR), element=kvpair)
             value = [x for x in sorted(values, key=lambda x: x.tag_name)][0]
 
             header = self.get_text(title)
@@ -52,17 +65,34 @@ class OpenSpecimenHelper(SeleniumHelper):
                 else:
                     details[header] = self.get_text(value)
 
-        return details
+        return version_comparator.translate_dictionary(self.compare_version, details)
 
-    def get_div_table_details(self, parent_element_css_selector='', columns=None):
+
+    def get_div_table_details(self, parent_element_css_selector='', columns=None, version_comparator: VersionTranslator=None):
+        VERSION_HEADERS = {
+            '5.0': CssSelector(f'{parent_element_css_selector} div.os-table-head div.col span, div.os-table-head div.col'),
+            '10.0': CssSelector(f'{parent_element_css_selector} table.os-table thead tr th'),
+        }
+        VERSION_ROWS = {
+            '5.0': CssSelector(f'{parent_element_css_selector} div.os-table-body div.row'),
+            '10.0': CssSelector(f'{parent_element_css_selector} table.os-table tbody tr'),
+        }
+        VERSION_CELLS = {
+            '5.0': CssSelector('div.col'),
+            '10.0': CssSelector('td'),
+        }
+
+        if not version_comparator:
+            version_comparator = VersionTranslator()
+
         result = []
 
-        headers = [self.get_text(h) for h in self.get_elements(CssSelector(f'{parent_element_css_selector} div.os-table-head div.col span, div.os-table-head div.col'))]
+        headers = [self.get_text(h) for h in self.get_elements(self.get_version_item(VERSION_HEADERS))]
 
-        for row in self.get_elements(CssSelector(f'{parent_element_css_selector} div.os-table-body div.row')):
+        for row in self.get_elements(self.get_version_item(VERSION_ROWS)):
             details = {}
 
-            for i, cell in enumerate(self.get_elements(CssSelector('div.col'), element=row)):
+            for i, cell in enumerate(self.get_elements(self.get_version_item(VERSION_CELLS))):
                 values = sorted(self.get_elements(CssSelector('span, a'), element=cell), key=lambda x: x.tag_name)
 
                 if len(values) > 0:
@@ -84,11 +114,14 @@ class OpenSpecimenHelper(SeleniumHelper):
                     else:
                         details[header] = self.get_text(value)
 
-            result.append(details)
+            result.append(version_comparator.translate_dictionary(self.compare_version, details))
 
         return result
 
-    def get_list_group_details(self, parent_element_css_selector='', columns=None):
+    def get_list_group_details(self, parent_element_css_selector='', columns=None, version_comparator: VersionTranslator=None):
+        if not version_comparator:
+            version_comparator = VersionTranslator()
+
         result = []
 
         header = [self.get_text(h) for h in self.get_elements(CssSelector(f'{parent_element_css_selector} div.list-group .os-section-hdr'))][0]
@@ -112,11 +145,14 @@ class OpenSpecimenHelper(SeleniumHelper):
                 else:
                     details[header] = self.get_text(value)
 
-            result.append(details)
+            result.append(version_comparator.translate_dictionary(self.compare_version, details))
 
         return result
 
-    def get_table_details(self, columns=None, has_container=True):
+    def get_table_details(self, columns=None, has_container=True, version_comparator: VersionTranslator=None):
+        if not version_comparator:
+            version_comparator = VersionTranslator()
+
         result = []
 
         headers = [self.get_text(h) for h in self.get_elements(CssSelector('table.os-table thead .col span:first-of-type'))]
@@ -154,16 +190,37 @@ class OpenSpecimenHelper(SeleniumHelper):
                             details[header] = val
 
             if len(details) > 0:
-                result.append(collections.OrderedDict(sorted(details.items())))
+                result.append(version_comparator.translate_dictionary(self.compare_version, details))
 
         return result
 
+    def get_form_details(self, version_comparator: VersionTranslator=None):
+        if not version_comparator:
+            version_comparator = VersionTranslator()
+
+        result = []
+
+        for row in self.get_elements(CssSelector(f'form div.form-group')):
+            details = {}
+
+            label = self.get_element(CssSelector('label'), element=row, allow_null=True)
+
+            values = [self.get_value(c) for c in self.get_elements(CssSelector('input, textarea'), element=row)]
+
+            if label and values:
+                details[self.get_text(label)] = values
+
+                result.append(details)
+
+        return version_comparator.translate_dictionary(self.compare_version, details)
+
 
 class OpenSpecimenTester():
-    def __init__(self, helper, selectors=None, outputs=None):
+    def __init__(self, helper, selectors=None, outputs=None, sample_all=False):
         self.helper = helper
         self.selectors = selectors
         self.outputs = outputs
+        self.sample_all = sample_all
 
     def object_name(self):
         if self.selectors:
@@ -183,32 +240,61 @@ class OpenSpecimenTester():
         else:
             raise NotImplementedError()
 
+    def url_prefixes(self):
+        return {
+            '5.0': '#',
+            '10.0': 'ui-app/#',
+        }
+
+    def translate_url(self, url):
+        prefix = self.helper.get_version_item(self.url_prefixes())
+        if url.startswith('/'):
+            return f'{prefix}{url}'
+        else:
+            return f'{prefix}/{url}'
+    
     def goto_function_page(self):
-        self.helper.get(f'#/{self.function_page_url()}')
+        self.helper.get(self.translate_url(self.function_page_url()))
         sleep(self.helper.page_wait_time)
 
     def goto_item_page(self, o):
         self.goto_function_page()
-        self.helper.get(o['href'])
-        self.helper.get_element(self.item_page_loaded_css_selector())
+        href = self.translate_url(o['href'])
+        print(href)
+        self.helper.get(href)
         sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        self.helper.get_element(self.item_page_loaded_css_selector())
 
     def goto_item_sub_page(self, o, page_name, selector, original='overview'):
         self.goto_function_page()
-        self.helper.get(o['href'].replace(original, page_name))
-        self.helper.get_element(selector)
+        href = self.translate_url(o['href'].replace(original, page_name))
+        print(href)
+        self.helper.get(href)
         sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        sleep(self.helper.page_wait_time)
+        self.helper.get_element(selector)
         
     def goto_item_custom_page(self, url, loaded_css_selector):
         self.goto_function_page()
+        url = self.translate_url(url)
         self.helper.get(url)
-        self.helper.get_element(loaded_css_selector)
         sleep(self.helper.page_wait_time)
+        self.helper.get_element(loaded_css_selector)
         
 
 class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
     def export_link_css_selector(self):
         raise NotImplementedError()
+
+    def export_link_name_selector(self):
+        return None
 
     def _export_filename(self):
         return secure_filename(f'{self.object_name()}_export.jsonl')
@@ -219,23 +305,26 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
     def get_export(self):
         logging.info('Exporting')
 
-        self.goto_function_page()
-        sleep(self.helper.page_wait_time)
-
         export_file = ItemsFile(self.helper.output_directory, self._export_filename())
 
-        for x in self.helper.get_elements(self.export_link_css_selector()):
-            href = self.helper.get_href(x)
+        if not export_file.exists():
+            print(f'Export not found {self._export_filename()} - processing')
 
-            if href.count("#") > 1:
-                href = "#".join(href.split("#", 2)[:2])
+            self.goto_function_page()
+            sleep(self.helper.page_wait_time)
 
-            export_file.add_item(dict(
-                name=self.helper.get_text(x),
-                href=href,
-            ))
+            for x in self.helper.get_elements(self.export_link_css_selector()):
+                href = self.helper.get_href(x)
 
-        export_file.save()
+                export_file.add_item(dict(
+                    name=self.helper.get_text(x),
+                    href=href,
+                ))
+
+            export_file.save()
+        else:
+            print(f'Export found {self._export_filename()} - skipping')
+
 
     def visit_items(self):
         logging.info(f'Visiting All {self.object_name()}s')
@@ -243,19 +332,24 @@ class OpenSpecimenNonDestructiveTester(OpenSpecimenTester):
         export_file = ItemsFile(self.helper.output_directory, self._export_filename())
         details_file = ItemsFile(self.helper.output_directory, self._details_filename(), sorted=False)
 
-        for o in export_file.get_sample_items():
-            logging.info(f'Processing Item: {o["name"]}')
+        if not details_file.exists():
+            print(f'Details not found {self._export_filename()} - processing')
 
-            details_file.add_item(self.visit_item(o))
+            for o in export_file.get_sample_items():
+                logging.info(f'Processing Item: {o["name"]}')
 
-        details_file.save()
+                details_file.add_item(self.visit_item(o))
 
-    def visit_item(self, o):
+            details_file.save()
+        else:
+            print(f'Details found {self._export_filename()} - skipping')
+
+    def visit_item(self, o, version_comparator: VersionTranslator=None):
         details = {}
 
         self.goto_item_page(o)
 
-        details['overview'] = self.helper.get_overview_details()
+        details['overview'] = OSOverviewScrubber(helper=self.helper, version_comparator=version_comparator).get_details()
 
         return details
 
@@ -279,3 +373,57 @@ class OpenSpecimenDestructiveTester(OpenSpecimenTester):
         self.create_item()
         self.validate_item()
         self.cleanup_item()
+
+
+class OSOverviewScrubber(KeyValuePairScrubber):
+    def __init__(self, helper: SeleniumHelper, version_comparator: VersionTranslator = None) -> None:
+        VERSION_VALUE_SELECTOR = {
+            '5.0': CssSelector('span, a'),
+            '10.0': CssSelector('span.value, a.value'),
+        }
+        super().__init__(
+            helper,
+            parent_selector=CssSelector('ul.os-key-values'),
+            value_selector=helper.get_version_item(VERSION_VALUE_SELECTOR),
+            version_comparator=version_comparator)
+
+
+def get_versioned_table_scrubber(helper: SeleniumHelper, version_comparator: VersionTranslator = None) -> TableScrubber:
+    VERSION_SCRUBBER = {
+        '5.0': OSTableScrubberOld(helper=helper, version_comparator=version_comparator),
+        '10.0': OSTableScrubberNew(helper=helper, version_comparator=version_comparator),
+    }
+    return helper.get_version_item(VERSION_SCRUBBER)
+
+
+class OSTableScrubberNew(TableScrubber):
+    def __init__(self, helper: SeleniumHelper, version_comparator: VersionTranslator = None) -> None:
+        super().__init__(
+            helper,
+            parent_selector=CssSelector('table.os-table'),
+            header_selector=CssSelector('thead tr th'),
+            row_selector=CssSelector('tbody tr'),
+            cell_selector=CssSelector('td'),
+            version_comparator=version_comparator)
+
+
+class OSTableScrubberOld(TableScrubber):
+    def __init__(self, helper: SeleniumHelper, version_comparator: VersionTranslator = None) -> None:
+        super().__init__(
+            helper,
+            parent_selector=CssSelector('div.os-table'),
+            header_selector=CssSelector('div.os-table-head div.col span, div.os-table-head div.col'),
+            row_selector=CssSelector('div.os-table-body div.row'),
+            cell_selector=CssSelector('div.col'),
+            version_comparator=version_comparator)
+
+
+class PDataTableScrubberNew(TableScrubber):
+    def __init__(self, helper: SeleniumHelper, version_comparator: VersionTranslator = None) -> None:
+        super().__init__(
+            helper,
+            parent_selector=CssSelector('table.p-datatable-table'),
+            header_selector=CssSelector('thead tr th'),
+            row_selector=CssSelector('tbody tr'),
+            cell_selector=CssSelector('td > span:last-of-type'),
+            version_comparator=version_comparator)

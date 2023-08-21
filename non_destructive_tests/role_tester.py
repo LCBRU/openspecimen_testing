@@ -1,12 +1,17 @@
 from selenium.webdriver.common.by import By
-from open_specimen_tester import OpenSpecimenNonDestructiveTester
-from lbrc_selenium.selenium import CssSelector
+from open_specimen_tester import OpenSpecimenNonDestructiveTester, OSTableScrubberOld
+from lbrc_selenium.selenium import CssSelector, VersionTranslator
 
 
 class RoleTester(OpenSpecimenNonDestructiveTester):
     VERSION_RESOURCES_RENAME = {
         '5.0': {"Path Report": "Surgical Pathology Report"},
     }
+
+    def url_prefixes(self):
+        return {
+            '5.0': '#',
+        }
 
     def object_name(self):
         return 'role'
@@ -32,19 +37,9 @@ class RoleTester(OpenSpecimenNonDestructiveTester):
         return details
 
     def get_permissions(self):
-        result = []
+        vt: VersionTranslator = VersionTranslator()
+        vt.set_label_translators_for_version('6.0', {
+            "Path Report": "Surgical Pathology Report",
+        })
 
-        for row in self.helper.get_elements(CssSelector('div.os-table-body div.row')):
-            details = {}
-
-            resource = self.helper.get_text(self.helper.get_element(CssSelector('div.col span'), element=row))
-
-            resource = self.VERSION_RESOURCES_RENAME.get(self.helper.compare_version, {}).get(resource, resource)
-
-            details['resource'] = resource 
-
-            details['permissions'] = [self.helper.get_text(x) for x in self.helper.get_elements(CssSelector('div.os-permissions span[translate]'), element=row)]
-
-            result.append(details)
-
-        return sorted(result, key=lambda d: d['resource'])
+        return OSTableScrubberOld(helper=self.helper, version_comparator=vt).get_details()

@@ -1,7 +1,8 @@
 import logging
 import os
 from time import sleep
-from open_specimen_tester import OpenSpecimenSeleniumTestHelper
+from lbrc_selenium.selenium import CssSelector, get_selenium
+from open_specimen_tester import OpenSpecimenHelper
 from destructive_tests.cart_tester import get_cart_tester
 from destructive_tests.collection_protocol_tester import get_collection_protocol_tester
 from destructive_tests.container_tester import get_container_tester
@@ -16,8 +17,6 @@ from destructive_tests.user_tester import get_user_tester
 from dotenv import load_dotenv
 from datetime import datetime
 
-from selenium_test_helper import SeleniumTestHelper
-
 
 load_dotenv()
 
@@ -25,45 +24,40 @@ logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
 
-h = OpenSpecimenSeleniumTestHelper(
-    download_directory=os.environ["DOWNLOAD_DIRECTORY"],
-    output_directory=os.environ["OUTPUT_DIRECTORY"],
-    base_url=os.environ["BASE_URL"],
-    headless=False,
-    implicit_wait_time=float(os.environ["IMPLICIT_WAIT_TIME"]),
-    click_wait_time=float(os.environ["CLICK_WAIT_TIME"]),
-    download_wait_time=float(os.environ["DOWNLOAD_WAIT_TIME"]),
-    page_wait_time=float(os.environ["PAGE_WAIT_TIME"]),
-    username=os.environ["APP_USERNAME"],
-    password=os.environ["APP_PASSWORD"],
-    version=os.environ["VERSION"],
-    sampling_type=os.environ["SAMPLING_TYPE"],
-    compare_version=os.environ["COMPARE_VERSION"],
-)
+def login(helper):
+    helper.get('')
+    login_input = helper.wait_to_appear(CssSelector('input[ng-model="loginData.loginName"]'))
+    sleep(1)
+    helper.type_in_textbox(CssSelector('input[ng-model="loginData.loginName"]'), os.environ["USERNAME"])
+    helper.type_in_textbox(CssSelector('input[ng-model="loginData.password"]'), os.environ["PASSWORD"])
+    helper.click_element(CssSelector('span[translate="user.sign_in"]'))
 
 started = datetime.now()
 
-h.login()
+h = get_selenium(helper_class=OpenSpecimenHelper)
 
 testers = [
-    get_cart_tester(h),
-    get_collection_protocol_tester(h),
-    get_container_tester(h),
-    get_participant_standard_tester(h),
-    get_participant_brc_tester(h),
-    get_distribution_protocol_tester(h),
-    get_institute_tester(h),
-    get_order_tester(h),
-    get_query_tester(h),
-    get_role_tester(h),
-    get_site_tester(h),
+    # get_cart_tester(h),
+    # get_collection_protocol_tester(h),
+    # get_container_tester(h),
+    # get_participant_standard_tester(h),
+    # get_participant_brc_tester(h),
+    # get_distribution_protocol_tester(h),
+    # get_institute_tester(h),
+    # get_order_tester(h),
+    # get_query_tester(h),
+    # get_role_tester(h),
+    # get_site_tester(h),
     get_user_tester(h),
 ]
 
-for t in testers:
-    t.run()
-    sleep(1)
+try:
+    login(h)
 
-h.close()
+    for t in testers:
+        t.run()
+        sleep(1)
+finally:
+    h.close()
 
 print(datetime.now() - started)

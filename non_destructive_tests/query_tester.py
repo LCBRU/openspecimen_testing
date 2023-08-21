@@ -1,8 +1,24 @@
-from lbrc_selenium.selenium import CssSelector
+from lbrc_selenium.selenium import CssSelector, TableScrubber, SeleniumHelper
 from open_specimen_tester import OpenSpecimenNonDestructiveTester
 from time import sleep
 
+
+class QueryResultsTableScrubber(TableScrubber):
+    def __init__(self, helper: SeleniumHelper) -> None:
+        super().__init__(
+            helper,
+            parent_selector=CssSelector('div.os-query-results-grid'),
+            header_selector=CssSelector('div.ngHeaderContainer div.ngHeaderCell tooltip-append-to-bod'),
+            row_selector=CssSelector('div.ngRow'),
+            cell_selector=CssSelector('div.ngCell a, div.ngCell span'))
+
+
 class QueryTester(OpenSpecimenNonDestructiveTester):
+    def url_prefixes(self):
+        return {
+            '5.0': '#',
+        }
+
     def object_name(self):
         return 'query'
 
@@ -24,27 +40,6 @@ class QueryTester(OpenSpecimenNonDestructiveTester):
 
         sleep(30)
 
-        details['rows'] = self.get_query_result_details()
+        details['rows'] = QueryResultsTableScrubber(helper=self.helper).get_details()
 
         return details
-
-    def get_query_result_details(self):
-        result = []
-
-        headers = [self.helper.get_text(h) for h in self.helper.get_elements(CssSelector('div.ngHeaderContainer div.ngHeaderCell tooltip-append-to-bod'))]
-
-        for row in self.helper.get_elements(CssSelector('div.ngRow')):
-            details = {}
-
-            for i, cell in enumerate(self.helper.get_elements(CssSelector('div.ngCell a, div.ngCell span'), element=row)):
-                if cell.tag_name == 'a':
-                    details[headers[i]] = {
-                        'href': self.helper.get_href(cell),
-                        'value': self.helper.get_text(cell),
-                    }
-                else:
-                    details[headers[i]] = self.helper.get_text(cell)
-
-            result.append(details)
-
-        return sorted(result, key=lambda r: r.__repr__())

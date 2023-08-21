@@ -1,9 +1,31 @@
 from lbrc_selenium.selenium import CssSelector
-from open_specimen_tester import OpenSpecimenNonDestructiveTester
+from open_specimen_tester import OpenSpecimenNonDestructiveTester, KeyValuePairScrubber, SeleniumHelper
 from time import sleep
+from packaging import version
+
+
+class FormScrubber(KeyValuePairScrubber):
+    def __init__(self, helper: SeleniumHelper) -> None:
+        super().__init__(
+            helper,
+            parent_selector=CssSelector('div.form-canvas'),
+            pair_selector=CssSelector('div.p-card-body'),
+            key_selector=CssSelector('label'),
+            value_selector=CssSelector('input, textarea'),
+        )
 
 
 class FormTester(OpenSpecimenNonDestructiveTester):
+    VERSION_FORM_FIELD = {
+        '5.0': CssSelector('div.form-group'),
+        '10.0': CssSelector('div.p-field'),
+    }
+
+    def url_prefixes(self):
+        return {
+            '5.0': '#',
+        }
+
     def object_name(self):
         return 'form'
 
@@ -18,12 +40,15 @@ class FormTester(OpenSpecimenNonDestructiveTester):
 
     def goto_preview(self, dp):
         self.goto_function_page()
-        self.helper.get(dp['href'])
+        self.helper.get(self.translate_url(dp['href']))
         sleep(1)
-        self.helper.driver.switch_to.frame(0)
-        self.helper.click_element(CssSelector('div[tab_id="previewTab"]'))
+
+        if version.parse(self.helper.version) < version.parse('10.0'):
+            self.helper.driver.switch_to.frame(0)
+            self.helper.click_element(CssSelector('div[tab_id="previewTab"]'))
 
     def visit_item(self, o):
+        print(f"Processing form: {o['name']}")
         details = {}
 
         self.goto_preview(o)
@@ -32,18 +57,6 @@ class FormTester(OpenSpecimenNonDestructiveTester):
 
         sleep(30)
 
-        details['preview'] = self.get_form_preview()
+        details['preview'] = FormScrubber(helper=self.helper).get_details()
 
         return details
-
-    def get_form_preview(self):
-        result = []
-
-        for row in self.helper.get_elements(CssSelector('div.form-group')):
-            details = {}
-
-            details['control'] = self.helper.get_innerHtml(row)
-
-            result.append(details)
-
-        return result

@@ -1,10 +1,57 @@
-from lbrc_selenium.selenium import CssSelector
-from open_specimen_tester import OpenSpecimenNonDestructiveTester
+from lbrc_selenium.selenium import CssSelector, XpathSelector, SeleniumHelper, VersionTranslator, ListScrubber
+from open_specimen_tester import OpenSpecimenNonDestructiveTester, PDataTableScrubberNew, OSTableScrubberNew, OSOverviewScrubber
+
+
+class SpecimenTableScrubberOld(OSTableScrubberNew):
+    def __init__(self, helper: SeleniumHelper) -> None:
+        super().__init__(helper)
+        self.parent_selector=CssSelector('div.container table.os-table')
 
 
 class ContainerTester(OpenSpecimenNonDestructiveTester):
-    VERSION_OVERVIEW_LABEL_RENAMES = {
-        '5.0': {'Collection Protocols': 'Collection Protocol'},
+    VERSION_EXPORT_LINK_SELECTOR = {
+        '5.0': CssSelector('a[ui-sref="container-detail.locations({containerId: container.id})"]'),
+        '10.0': CssSelector('a[href^="#/containers/"][href$="/detail/overview"]'),
+    }
+    VERSION_LOADED_SELECTOR = {
+        '5.0': CssSelector('table.os-container-map'),
+        '10.0': XpathSelector('//button/span[contains(text(), "Edit")]'),
+    }
+    VERSION_OVERVIEW_LOADED_SELECTOR = {
+        '5.0': CssSelector('span[translate="container.replicate"]'),
+        '10.0': XpathSelector('//button/span[contains(text(), "Edit")]'),
+    }
+    VERSION_SPECIMENS_LOADED_SELECTOR = {
+        '5.0': CssSelector('span[translate="common.buttons.download_report"]'),
+        '10.0': XpathSelector('//button/span[contains(text(), "Download Report")]'),
+    }
+    VERSION_ROWS_PARENT_SELECTOR = {
+        '5.0': CssSelector('div.panel'),
+        '10.0': CssSelector('div.p-tree'),
+    }
+    VERSION_ROWS_VALUE_SELECTOR = {
+        '5.0': CssSelector('a[ng-click="selectContainer(container)"] span'),
+        '10.0': CssSelector('span.p-treenode-label a span'),
+    }
+    VERSION_SLOTS_PARENT_SELECTOR = {
+        '5.0': CssSelector('table.os-container-map'),
+        '10.0': CssSelector('div.os-container-layout'),
+    }
+    VERSION_SLOTS_VALUE_SELECTOR = {
+        '5.0': CssSelector('span.slot-desc'),
+        '10.0': CssSelector('td.occupant span.name'),
+    }
+    VERSION_SPECIMENS_TABLE_SELECTOR = {
+        '5.0': SpecimenTableScrubberOld,
+        '10.0': PDataTableScrubberNew,
+    }
+    VERSION_SLOTS_LOADED_SELECTOR = {
+        '5.0': CssSelector('table.os-container-map'),
+        '10.0': CssSelector('div.os-container-layout'),
+    }
+    VERSION_ORIGINAL_SELECTOR = {
+        '5.0': 'locations',
+        '10.0': 'overview',
     }
 
     def object_name(self):
@@ -14,48 +61,54 @@ class ContainerTester(OpenSpecimenNonDestructiveTester):
         return 'containers'
 
     def export_link_css_selector(self):
-        return CssSelector('a[ui-sref="container-detail.locations({containerId: container.id})"]')
+        return self.helper.get_version_item(self.VERSION_EXPORT_LINK_SELECTOR)
 
     def item_page_loaded_css_selector(self):
-        # return 'span[translate="container.assign_positions"]'
-        # return 'span.slot-desc' # v5.1
-        return CssSelector('div.panel-body') # v5.2
+        return self.helper.get_version_item(self.VERSION_LOADED_SELECTOR)
 
     def visit_item(self, o):
         details = {}
 
-        self.goto_item_sub_page(o, page_name='overview', selector=CssSelector('span[translate="container.replicate"]'), original='locations')
+        self.goto_item_sub_page(
+            o,
+            page_name='overview',
+            selector=self.helper.get_version_item(self.VERSION_OVERVIEW_LOADED_SELECTOR),
+            original=self.helper.get_version_item(self.VERSION_ORIGINAL_SELECTOR),
+        )
 
-        overview = self.helper.get_overview_details()
+        vt: VersionTranslator = VersionTranslator()
+        vt.set_label_translators_for_version('5.0', {'Collection Protocols': 'Collection Protocol'})
 
-        for to_rename in self.VERSION_OVERVIEW_LABEL_RENAMES.get(self.helper.compare_version, {}).keys():
-            overview = {self.VERSION_OVERVIEW_LABEL_RENAMES.get(self.helper.compare_version, {})[to_rename] if k == to_rename else k:v for k,v in overview.items()}
+        details['overview'] = OSOverviewScrubber(helper=self.helper, version_comparator=vt).get_details()
 
-        details['overview'] = overview
+        self.goto_item_sub_page(
+            o,
+            page_name='locations',
+            selector=self.helper.get_version_item(self.VERSION_SLOTS_LOADED_SELECTOR),
+            original=self.helper.get_version_item(self.VERSION_ORIGINAL_SELECTOR),
+        )
 
-        self.goto_item_page(o)
+        details['rows'] = ListScrubber(
+            helper=self.helper,
+            parent_selector=self.helper.get_version_item(self.VERSION_ROWS_PARENT_SELECTOR),
+            value_selector=self.helper.get_version_item(self.VERSION_ROWS_VALUE_SELECTOR),
+        ).get_details()
+        details['slots'] = ListScrubber(
+            helper=self.helper,
+            parent_selector=self.helper.get_version_item(self.VERSION_SLOTS_PARENT_SELECTOR),
+            value_selector=self.helper.get_version_item(self.VERSION_SLOTS_VALUE_SELECTOR),
+        ).get_details()
 
-        details['rows'] = self.get_container_children()
-        details['slots'] = self.get_container_slots()
+        self.goto_item_sub_page(
+            o,
+            page_name='specimens',
+            selector=self.helper.get_version_item(self.VERSION_SPECIMENS_LOADED_SELECTOR),
+            original=self.helper.get_version_item(self.VERSION_ORIGINAL_SELECTOR),
+        )
 
-        self.goto_item_sub_page(o, page_name='specimens', selector=CssSelector('span[translate="common.buttons.download_report"]'), original='locations')
+        vt: VersionTranslator = VersionTranslator()
+        vt.set_columns_for_version('5.0', ['PPID', 'Label'])
 
-        details['specimens'] = self.helper.get_table_details()
+        details['specimens'] = self.helper.get_version_item(self.VERSION_SPECIMENS_TABLE_SELECTOR)(helper=self.helper, version_comparator=vt).get_details()
 
         return details
-
-    def get_container_children(self):
-        result = []
-
-        for row in self.helper.get_elements(CssSelector('a[ng-click="selectContainer(container)"] span')):
-            result.append(self.helper.get_text(row))
-
-        return result
-
-    def get_container_slots(self):
-        result = []
-
-        for slot in self.helper.get_elements(CssSelector('span.slot-desc')):
-            result.append(self.helper.get_text(slot))
-
-        return result

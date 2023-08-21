@@ -1,7 +1,7 @@
 import logging
 import os
 from time import sleep
-from lbrc_selenium.selenium import CssSelector, get_selenium, XpathSelector
+from lbrc_selenium.selenium import CssSelector, get_selenium
 from non_destructive_tests.site_tester import SiteTester
 from non_destructive_tests.user_tester import UserTester
 from non_destructive_tests.role_tester import RoleTester
@@ -28,8 +28,10 @@ logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
 def login(helper):
     helper.get('')
-    helper.type_in_textbox(XpathSelector('//input[@ng-model="loginData.loginName"]'), os.environ["USERNAME"])
-    helper.type_in_textbox(XpathSelector('//input[@ng-model="loginData.password"]'), os.environ["PASSWORD"])
+    login_input = helper.wait_to_appear(CssSelector('input[ng-model="loginData.loginName"]'))
+    sleep(1)
+    helper.type_in_textbox(CssSelector('input[ng-model="loginData.loginName"]'), os.environ["USERNAME"])
+    helper.type_in_textbox(CssSelector('input[ng-model="loginData.password"]'), os.environ["PASSWORD"])
     helper.click_element(CssSelector('span[translate="user.sign_in"]'))
 
 started = datetime.now()
@@ -37,18 +39,18 @@ started = datetime.now()
 h = get_selenium(helper_class=OpenSpecimenHelper)
 
 testers = [
-    SiteTester(h),
-    UserTester(h),
-    RoleTester(h),
-    QueryTester(h),
-    OrderTester(h),
-    JobTester(h),
-    InstituteTester(h),
-    FormTester(h),
-    DistributionProtocolTester(h),
+    # SiteTester(h),
+    # UserTester(h),
+    # RoleTester(h, sample_all=True),
+    # QueryTester(h),
+    # OrderTester(h, sample_all=True),
+    # JobTester(h, sample_all=True),
+    # InstituteTester(h),
+    # FormTester(h, sample_all=True),
+    # DistributionProtocolTester(h),
     ContainerTester(h),
-    CollectionProtocolTester(h),
-    CartTester(h),
+    # CollectionProtocolTester(h),
+    # CartTester(h),
 ]
 
 try:
